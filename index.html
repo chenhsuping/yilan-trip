@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<title>宜蘭親子小旅行 · 2天1夜</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --cream:#FFF6EE;
+    --card:#FFFFFF;
+    --ink:#3E322C;
+    --muted:#94837A;
+    --line:#F0E2D6;
+    --leek:#5CA24B;      /* 三星蔥綠 */
+    --honey:#F0A02E;     /* 桶仔雞金 */
+    --coral:#FF7A6B;     /* 親子珊瑚 */
+    --teal:#189E9A;      /* 蘇澳海 */
+    --grape:#8C6BD6;     /* 城堡紫 */
+    --sky1:#FFE7C7;
+    --sky2:#FFD6C4;
+    --sky3:#CFEFEA;
+    --hill:#BFE0A6;
+    --hill2:#9FD0A0;
+    --shadow:0 18px 40px -22px rgba(96,60,40,.55);
+    --shadow-sm:0 8px 20px -14px rgba(96,60,40,.5);
+    --radius:22px;
+    --cjk:"PingFang TC","PingFang SC","Microsoft JhengHei","Noto Sans TC","Hiragino Sans TC",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --cream:#221A18;
+      --card:#2E2421;
+      --ink:#F6E9DE;
+      --muted:#B39F93;
+      --line:#3E312C;
+      --sky1:#3A2A24;
+      --sky2:#402A2E;
+      --sky3:#213836;
+      --hill:#2E4A2C;
+      --hill2:#264026;
+      --shadow:0 18px 40px -20px rgba(0,0,0,.7);
+      --shadow-sm:0 8px 22px -14px rgba(0,0,0,.65);
+    }
+  }
+  :root[data-theme="light"]{
+    --cream:#FFF6EE;--card:#FFFFFF;--ink:#3E322C;--muted:#94837A;--line:#F0E2D6;
+    --sky1:#FFE7C7;--sky2:#FFD6C4;--sky3:#CFEFEA;--hill:#BFE0A6;--hill2:#9FD0A0;
+    --shadow:0 18px 40px -22px rgba(96,60,40,.55);--shadow-sm:0 8px 20px -14px rgba(96,60,40,.5);
+  }
+  :root[data-theme="dark"]{
+    --cream:#221A18;--card:#2E2421;--ink:#F6E9DE;--muted:#B39F93;--line:#3E312C;
+    --sky1:#3A2A24;--sky2:#402A2E;--sky3:#213836;--hill:#2E4A2C;--hill2:#264026;
+    --shadow:0 18px 40px -20px rgba(0,0,0,.7);--shadow-sm:0 8px 22px -14px rgba(0,0,0,.65);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:var(--cjk);color:var(--ink);background:var(--cream);
+    -webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden;
+  }
+  #bokeh{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  #fx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;overflow:hidden;text-align:center;
+    padding:64px 20px 150px;
+    background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 45%,var(--sky3) 100%);
+  }
+  .hero .steam{position:absolute;bottom:120px;width:14px;height:60px;border-radius:20px;
+    background:rgba(255,255,255,.5);filter:blur(6px);animation:steam 4s ease-in-out infinite}
+  @media (prefers-color-scheme:dark){.hero .steam{background:rgba(255,255,255,.14)}}
+  .steam.s1{left:22%;animation-delay:0s}.steam.s2{left:50%;animation-delay:1.1s;height:80px}
+  .steam.s3{left:74%;animation-delay:2.2s}
+  @keyframes steam{0%{transform:translateY(20px) scale(.8);opacity:0}
+    40%{opacity:.9}100%{transform:translateY(-70px) scale(1.3);opacity:0}}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;
+    letter-spacing:.18em;color:var(--leek);background:rgba(255,255,255,.65);
+    padding:7px 16px;border-radius:100px;box-shadow:var(--shadow-sm)}
+  @media (prefers-color-scheme:dark){.eyebrow{background:rgba(255,255,255,.08)}}
+  h1.title{
+    font-size:clamp(40px,9vw,72px);margin:.32em 0 .12em;font-weight:900;letter-spacing:.02em;
+    text-wrap:balance;line-height:1.05;
+    background:linear-gradient(100deg,var(--coral),var(--honey) 30%,var(--leek) 55%,var(--teal) 75%,var(--coral));
+    background-size:250% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 2px 0 rgba(255,255,255,.35));
+    animation:shimmer 6s linear infinite,pop 1s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  @keyframes shimmer{to{background-position:250% 0}}
+  @keyframes pop{from{opacity:0;transform:translateY(24px) scale(.9)}to{opacity:1;transform:none}}
+  .eyebrow{animation:drop .7s cubic-bezier(.2,1.3,.4,1) both}
+  .datechip{animation:drop .7s .15s cubic-bezier(.2,1.3,.4,1) both}
+  @keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  .sun{position:absolute;top:44px;left:50%;width:120px;height:120px;margin-left:-60px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,230,150,.95),rgba(255,200,110,.35) 55%,transparent 72%);
+    filter:blur(2px);animation:pulse 5s ease-in-out infinite;z-index:0}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
+  .cloud{position:absolute;top:0;font-size:44px;opacity:.85;animation:drift linear infinite;
+    filter:drop-shadow(0 6px 8px rgba(120,80,50,.12))}
+  .cloud.c1{top:36px;animation-duration:26s}
+  .cloud.c2{top:96px;font-size:34px;animation-duration:38s;animation-delay:-10s;opacity:.7}
+  @keyframes drift{from{left:-90px}to{left:110%}}
+  .datechip{display:inline-flex;gap:10px;align-items:center;font-weight:800;font-size:16px;
+    color:#fff;background:linear-gradient(120deg,var(--coral),var(--honey));
+    padding:9px 20px;border-radius:100px;box-shadow:var(--shadow)}
+  .float{position:absolute;font-size:clamp(30px,6vw,46px);animation:bob 5s ease-in-out infinite;
+    filter:drop-shadow(0 6px 6px rgba(120,80,50,.18))}
+  .float.f1{left:6%;top:60px;animation-delay:0s}
+  .float.f2{right:7%;top:48px;animation-delay:.8s}
+  .float.f3{left:11%;bottom:130px;animation-delay:1.6s}
+  .float.f4{right:10%;bottom:120px;animation-delay:2.3s}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+  .hills{position:absolute;left:0;right:0;bottom:0;height:120px;pointer-events:none}
+  .hills svg{display:block;width:100%;height:100%}
+
+  /* ---------- DAY TABS ---------- */
+  .tabs{position:sticky;top:0;z-index:30;display:flex;gap:10px;justify-content:center;
+    padding:14px 0;margin-top:-40px;background:linear-gradient(var(--cream),var(--cream) 70%,transparent)}
+  .tab{flex:0 0 auto;cursor:pointer;border:none;font-family:inherit;font-weight:800;
+    color:var(--muted);background:var(--card);padding:12px 22px;border-radius:100px;
+    box-shadow:var(--shadow-sm);transition:.25s;display:flex;flex-direction:column;align-items:center;
+    line-height:1.15;min-width:120px}
+  .tab b{font-size:16px}.tab span{font-size:12px;font-weight:600;opacity:.8}
+  .tab[aria-selected="true"]{color:#fff;transform:translateY(-2px)}
+  .tab[data-d="0"][aria-selected="true"]{background:linear-gradient(120deg,var(--coral),var(--honey))}
+  .tab[data-d="1"][aria-selected="true"]{background:linear-gradient(120deg,var(--teal),var(--leek))}
+  .tab:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+
+  /* ---------- TIMELINE ---------- */
+  .day{display:none;animation:fade .5s ease both}
+  .day.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .timeline{position:relative;padding-left:14px;margin-top:20px}
+
+  .stop{position:relative;padding-left:58px;padding-bottom:26px}
+  .stop:last-child{padding-bottom:6px}
+  .rail{position:absolute;left:19px;top:6px;bottom:-6px;width:3px;border-radius:3px;
+    background:linear-gradient(var(--line),var(--line))}
+  .stop:last-child .rail{background:linear-gradient(var(--line),transparent)}
+  .node{position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:50%;
+    display:grid;place-items:center;font-weight:900;color:#fff;font-size:17px;z-index:2;
+    box-shadow:var(--shadow-sm);border:3px solid var(--card)}
+  .node::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid currentColor;
+    color:inherit;opacity:0;animation:ring 2.6s ease-out infinite}
+  .t-meal .node::after{color:var(--coral)}.t-play .node::after{color:var(--teal)}
+  .t-stay .node::after{color:var(--grape)}.t-shop .node::after{color:var(--honey)}
+  .t-cafe .node::after{color:var(--leek)}.t-checkout .node::after{color:var(--muted)}
+  @keyframes ring{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+  .t-meal .node{background:linear-gradient(135deg,var(--honey),var(--coral))}
+  .t-play .node{background:linear-gradient(135deg,var(--teal),var(--leek))}
+  .t-stay .node{background:linear-gradient(135deg,var(--grape),var(--coral))}
+  .t-shop .node{background:linear-gradient(135deg,var(--coral),var(--honey))}
+  .t-cafe .node{background:linear-gradient(135deg,var(--honey),var(--leek))}
+  .t-checkout .node{background:linear-gradient(135deg,var(--muted),#b9a89d)}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:18px 20px;position:relative;overflow:hidden;
+    opacity:0;transform:translateY(18px);transition:.6s cubic-bezier(.2,.7,.2,1)}
+  .card.reveal{opacity:1;transform:none}
+  .card{transition:.6s cubic-bezier(.2,.7,.2,1),box-shadow .3s,translate .3s}
+  .card.reveal:hover{translate:0 -5px;box-shadow:0 26px 46px -20px rgba(96,60,40,.6)}
+  @media (prefers-color-scheme:dark){.card.reveal:hover{box-shadow:0 26px 46px -18px rgba(0,0,0,.8)}}
+  .card::after{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
+    transform:skewX(-18deg);opacity:0;pointer-events:none}
+  @media (prefers-color-scheme:dark){.card::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent)}}
+  .card.reveal:hover::after{animation:shine .8s ease}
+  @keyframes shine{from{left:-60%;opacity:1}to{left:120%;opacity:0}}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px}
+  .t-meal .card::before{background:linear-gradient(var(--honey),var(--coral))}
+  .t-play .card::before{background:linear-gradient(var(--teal),var(--leek))}
+  .t-stay .card::before{background:linear-gradient(var(--grape),var(--coral))}
+  .t-shop .card::before{background:linear-gradient(var(--coral),var(--honey))}
+  .t-cafe .card::before{background:linear-gradient(var(--honey),var(--leek))}
+  .t-checkout .card::before{background:linear-gradient(var(--muted),#b9a89d)}
+
+  .c-top{display:flex;align-items:flex-start;gap:12px}
+  .emoji{font-size:34px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 4px 4px rgba(120,80,50,.15))}
+  .c-head{flex:1;min-width:0}
+  .time{display:inline-block;font-weight:800;font-size:12.5px;letter-spacing:.02em;
+    color:var(--ink);background:var(--line);padding:3px 11px;border-radius:100px;
+    font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;font-weight:800;font-size:11px;color:#fff;padding:3px 10px;
+    border-radius:100px;margin-left:6px}
+  .t-meal .tag{background:var(--coral)}.t-play .tag{background:var(--teal)}
+  .t-stay .tag{background:var(--grape)}.t-shop .tag{background:var(--honey)}
+  .t-cafe .tag{background:var(--leek)}.t-checkout .tag{background:var(--muted)}
+  .cuisine{float:right;font-size:11px;font-weight:800;color:var(--leek);
+    border:1.5px dashed var(--leek);padding:3px 10px;border-radius:100px}
+  h3.name{margin:9px 0 0;font-size:20px;font-weight:900;text-wrap:balance;line-height:1.3}
+  .desc{margin:8px 0 14px;color:var(--muted);font-size:14.5px}
+  .meta{display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;gap:9px;align-items:flex-start;font-size:14px}
+  .row .k{flex:0 0 auto;width:20px;text-align:center;opacity:.9}
+  .maplink{color:var(--teal);font-weight:700;text-decoration:none;border-bottom:2px solid transparent;transition:.2s}
+  .maplink:hover{border-bottom-color:var(--teal)}
+  .cost{font-weight:800;color:var(--honey)}
+  .t-stay .cost,.t-meal .cost{color:var(--coral)}
+
+  /* ---------- CALCULATOR ---------- */
+  .calc{margin-top:34px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:22px 22px 26px;position:relative;overflow:hidden}
+  .calc h2{margin:0 0 4px;font-size:22px;font-weight:900}
+  .calc .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  .steppers{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .stepper{flex:1;min-width:150px;background:var(--cream);border-radius:16px;padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .stepper .lbl{font-weight:800;font-size:14px}
+  .stepper .lbl small{display:block;font-weight:600;color:var(--muted);font-size:11px}
+  .ctrl{display:flex;align-items:center;gap:10px}
+  .ctrl button{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+    font-size:20px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--teal),var(--leek));
+    line-height:1;box-shadow:var(--shadow-sm);transition:.15s}
+  .ctrl button:active{transform:scale(.9)}
+  .ctrl button:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  .ctrl .num{min-width:26px;text-align:center;font-weight:900;font-size:20px;font-variant-numeric:tabular-nums}
+
+  .breakdown{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+  .bd{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px}
+  .bd .d{color:var(--muted)}
+  .bd .v{font-weight:800;font-variant-numeric:tabular-nums}
+  .total{margin-top:6px;border-top:2px solid var(--ink);padding-top:14px;display:flex;
+    justify-content:space-between;align-items:baseline}
+  .total .d{font-weight:900;font-size:16px}
+  .total .v{font-weight:900;font-size:30px;font-variant-numeric:tabular-nums;
+    background:linear-gradient(120deg,var(--coral),var(--honey));-webkit-background-clip:text;
+    background-clip:text;color:transparent;display:inline-block}
+  .total .v.bump{animation:bump .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .perhead{margin-top:12px;display:flex;justify-content:space-between;align-items:center;
+    background:linear-gradient(120deg,rgba(24,158,154,.12),rgba(92,162,75,.14));
+    border:1.5px dashed var(--teal);border-radius:14px;padding:11px 15px}
+  .perhead .d{font-weight:800;font-size:14px}
+  .perhead .d b{color:var(--teal)}
+  .perhead .pv{font-weight:900;font-size:22px;color:var(--teal);font-variant-numeric:tabular-nums}
+  .note{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.5}
+
+  /* ---------- NOW highlight ---------- */
+  .stop.active-now .card{box-shadow:0 0 0 3px var(--coral),0 0 0 9px rgba(255,122,107,.18),var(--shadow)}
+  .now-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:900;color:#fff;
+    background:linear-gradient(120deg,var(--coral),var(--honey));padding:3px 11px;border-radius:100px;
+    margin-bottom:7px;box-shadow:var(--shadow-sm);animation:blink 1.5s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
+  #nowBtn{position:fixed;right:18px;bottom:18px;z-index:50;border:none;cursor:pointer;font-family:inherit;
+    font-weight:900;font-size:14px;color:#fff;padding:13px 18px;border-radius:100px;
+    background:linear-gradient(120deg,var(--coral),var(--honey));box-shadow:var(--shadow);
+    transition:transform .15s,box-shadow .2s}
+  #nowBtn:hover{transform:translateY(-2px)}
+  #nowBtn:active{transform:scale(.94)}
+  #nowBtn:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  @media(max-width:560px){#nowBtn{right:12px;bottom:12px;padding:12px 15px;font-size:13px}}
+
+  /* ---------- OUTRO ---------- */
+  .outro{text-align:center;margin-top:40px;font-weight:900;font-size:20px;color:var(--leek)}
+  .outro .em{font-size:30px;display:block;margin-bottom:6px}
+  .credit{text-align:center;margin-top:22px;font-size:12px;color:var(--muted)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .card{opacity:1;transform:none}
+  }
+  /* ============ RWD ============ */
+  /* Large / desktop */
+  @media(min-width:900px){
+    .hero{padding:80px 20px 170px}
+    .wrap{max-width:860px}
+    .stepper{min-width:0}
+  }
+  /* Tablet & below */
+  @media(max-width:720px){
+    .hero{padding:56px 18px 140px}
+    .float{font-size:clamp(26px,7vw,40px)}
+  }
+  /* Phones */
+  @media(max-width:560px){
+    .wrap{padding:0 14px 64px}
+    .hero{padding:48px 14px 128px}
+    .tabs{gap:8px;padding:12px 0}
+    .tab{min-width:0;flex:1 1 0;padding:11px 10px}
+    .card{padding:15px 15px}
+    h3.name{font-size:18px}
+    .desc{font-size:14px}
+    .cuisine{float:none;display:inline-block;margin-top:8px}
+    .calc{padding:18px 16px 22px}
+    .steppers{gap:10px}
+    .stepper{flex:1 1 100%;min-width:0}
+    .total .v{font-size:26px}
+  }
+  /* Small phones */
+  @media(max-width:380px){
+    .stop{padding-left:50px}
+    .node{width:34px;height:34px;font-size:15px}
+    .rail{left:16px}
+    .emoji{font-size:28px}
+    h1.title{font-size:38px}
+    .datechip{font-size:14px;padding:8px 15px}
+    .time,.tag{margin-bottom:2px}
+    .total{flex-wrap:wrap;gap:4px}
+  }
+  /* Landscape phones: calm the tall hero */
+  @media(max-height:480px) and (orientation:landscape){
+    .hero{padding:34px 16px 96px}
+    .hills{height:80px}
+  }
+</style>
+
+<canvas id="bokeh"></canvas>
+<canvas id="fx"></canvas>
+
+<div class="hero">
+  <div class="sun"></div>
+  <span class="cloud c1">☁️</span>
+  <span class="cloud c2">☁️</span>
+  <span class="float f1">🐔</span>
+  <span class="float f2">🧅</span>
+  <span class="float f3">🐥</span>
+  <span class="float f4">🏰</span>
+  <span class="steam s1"></span><span class="steam s2"></span><span class="steam s3"></span>
+  <span class="eyebrow">♨️ 宜蘭 · 親子放電之旅</span>
+  <h1 class="title">宜蘭親子小旅行</h1>
+  <div class="datechip">🗓️ 2天1夜 · 8/29 (六) – 8/30 (日)</div>
+  <div class="hills">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,70 C180,20 340,110 520,70 C720,25 880,110 1060,60 C1120,44 1170,60 1200,58 L1200,120 L0,120 Z" fill="var(--hill)"/>
+      <path d="M0,92 C200,60 380,120 600,88 C820,58 980,118 1200,86 L1200,120 L0,120 Z" fill="var(--hill2)"/>
+    </svg>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tabs" role="tablist" aria-label="行程天數">
+    <button class="tab" data-d="0" role="tab" aria-selected="true"><b>DAY 1</b><span>8/29 · 週六</span></button>
+    <button class="tab" data-d="1" role="tab" aria-selected="false"><b>DAY 2</b><span>8/30 · 週日</span></button>
+  </div>
+
+  <div id="days"></div>
+
+  <div class="calc">
+    <h2>💰 費用試算</h2>
+    <div class="sub">固定包棟與代烤費用不變，門票依人數即時計算。</div>
+    <div class="steppers">
+      <div class="stepper">
+        <div class="lbl">大人 🧑<small>免睡殿 + 萌萌森林全票</small></div>
+        <div class="ctrl">
+          <button type="button" data-t="adult" data-op="-1" aria-label="減少大人">−</button>
+          <span class="num" id="n-adult">10</span>
+          <button type="button" data-t="adult" data-op="1" aria-label="增加大人">+</button>
+        </div>
+      </div>
+      <div class="stepper">
+        <div class="lbl">兒童 🧒<small>免睡殿 + 萌萌森林兒童票</small></div>
+        <div class="ctrl">
+          <button type="button" data-t="child" data-op="-1" aria-label="減少兒童">−</button>
+          <span class="num" id="n-child">5</span>
+          <button type="button" data-t="child" data-op="1" aria-label="增加兒童">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+    <div class="total"><span class="d">預估總計（不含餐飲）</span><span class="v" id="grand">—</span></div>
+    <div class="perhead"><span class="d">👥 每人均分 · <b id="ppl">—</b> 人</span><span class="pv" id="perhead">—</span></div>
+    <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，兒童票適用 6–12 歲，實際票價以現場公告為準。</div>
+  </div>
+
+  <button id="nowBtn" type="button" aria-label="跳到目前行程">📍 目前行程</button>
+
+  <div class="outro"><span class="em">🎒</span>回程 · 準備迎接開學！</div>
+  <div class="credit">為家庭出遊而做的互動行程表 · 點站名可開啟 Google 地圖導航</div>
+</div>
+
+<script>
+const trip=[
+ [
+  {n:1,t:"meal",time:"11:30–13:00",tag:"午餐",icon:"🍗",name:"大仁哥蔗香脆皮桶仔雞 · 宜蘭旗艦店",addr:"宜蘭縣壯圍鄉大福路三段232巷20號",desc:"招牌桶仔雞搭配台式料理，適合多人聚餐，是在地人氣餐廳。",cost:"依現場點餐",cuisine:"台式料理"},
+  {n:2,t:"play",time:"13:30–14:30",tag:"景點",icon:"🤸",name:"宜蘭免睡殿",addr:"宜蘭縣蘇澳鎮海山西路280號",desc:"親子放電景點，翻跳玩樂超有趣，實際活動約 40 分鐘。",cost:"每人 NT$150（6 歲以下・75 歲以上免費）"},
+  {n:3,t:"stay",time:"15:00 起",tag:"住宿",icon:"🏰",name:"宜蘭哥德白色城堡",addr:"宜蘭縣五結鄉大眾一路468號",desc:"白色城堡風格包棟住宿，適合拍照、休息與家人同樂。",cost:"包棟 NT$43,200"},
+  {n:4,t:"meal",time:"18:00 起",tag:"晚餐",icon:"🍖",name:"肉慾少年（代烤）",addr:"於民宿內專用",desc:"晚餐安排代烤燒肉，不用自己動手，輕鬆享受聚餐時光。",cost:"約 NT$17,000"}
+ ],
+ [
+  {n:1,t:"checkout",time:"11:00",tag:"退房",icon:"🧳",name:"退房",addr:"宜蘭哥德白色城堡",desc:"整理行李，準備出發，展開第二天的行程。",cost:"無"},
+  {n:2,t:"shop",time:"11:30–12:00",tag:"伴手禮",icon:"🛍️",name:"奕順軒 · 礁溪店",addr:"宜蘭縣礁溪鄉礁溪路五段96號",desc:"宜蘭人氣伴手禮店，可買奶凍捲、牛舌餅等回家分享。",cost:"依購買品項"},
+  {n:3,t:"play",time:"12:30–14:00",tag:"景點",icon:"🦙",name:"萌萌森林物語",addr:"新北市石碇區碇石林路70號",desc:"萌萌互動餐廳，適合親子拍照，散步與近距離看可愛動物。",cost:"全票 NT$250／兒童票 NT$150（6–12 歲）"},
+  {n:4,t:"cafe",time:"14:20 起",tag:"午餐",icon:"☕",name:"莫內咖啡",addr:"新北市深坑區深南路58號對面（深南路口對面，找 49 號）",desc:"景觀咖啡廳餐廳，提供義式料理，特色餐點是臭豆腐披薩。",cost:"依現場點餐",cuisine:"義式料理"}
+ ]
+];
+
+const days=document.getElementById('days');
+trip.forEach((stops,di)=>{
+  const d=document.createElement('div');
+  d.className='day'+(di===0?' on':'');d.dataset.day=di;
+  const tl=document.createElement('div');tl.className='timeline';
+  stops.forEach((s,si)=>{
+    const q=encodeURIComponent(s.name.replace(/ · | ／.*/g,' ')+' '+s.addr);
+    const map=`https://www.google.com/maps/search/?api=1&query=${q}`;
+    const el=document.createElement('div');
+    el.className='stop t-'+s.t;
+    el.id=`stop-${di}-${si}`;
+    el.innerHTML=`
+      <div class="rail"></div>
+      <div class="node">${s.n}</div>
+      <div class="card">
+        <div class="c-top">
+          <div class="emoji">${s.icon}</div>
+          <div class="c-head">
+            ${s.cuisine?`<span class="cuisine">🍽️ ${s.cuisine}</span>`:''}
+            <span class="time">${s.time}</span><span class="tag">${s.tag}</span>
+            <h3 class="name">${s.name}</h3>
+          </div>
+        </div>
+        <p class="desc">${s.desc}</p>
+        <div class="meta">
+          <div class="row"><span class="k">📍</span><a class="maplink" href="${map}" target="_blank" rel="noopener">${s.addr}</a></div>
+          <div class="row"><span class="k">💵</span><span class="cost">${s.cost}</span></div>
+        </div>
+      </div>`;
+    tl.appendChild(el);
+  });
+  d.appendChild(tl);days.appendChild(d);
+});
+
+const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+/* tabs */
+const tabs=[...document.querySelectorAll('.tab')];
+function selectDay(di){
+  di=String(di);
+  tabs.forEach(x=>x.setAttribute('aria-selected',x.dataset.d===di));
+  document.querySelectorAll('.day').forEach(dv=>dv.classList.toggle('on',dv.dataset.day===di));
+  revealVisible();
+}
+tabs.forEach(tb=>tb.addEventListener('click',()=>{
+  const di=tb.dataset.d;selectDay(di);
+  const r=tb.getBoundingClientRect();
+  burst(r.left+r.width/2,r.bottom, di==='0'?['#FF7A6B','#F0A02E','#FFD36B']:['#189E9A','#5CA24B','#8C6BD6']);
+}));
+
+/* scroll reveal */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('reveal');io.unobserve(e.target)}});
+},{threshold:.15});
+function revealVisible(){document.querySelectorAll('.day.on .card:not(.reveal)').forEach(c=>io.observe(c));}
+revealVisible();
+
+/* calculator */
+const st={adult:10,child:5};
+const money=n=>'NT$'+Math.round(n).toLocaleString('en-US');
+const grandEl=document.getElementById('grand');
+let shown=0,raf=0;
+function countTo(target){
+  if(reduce){shown=target;grandEl.textContent=money(target);return;}
+  cancelAnimationFrame(raf);const from=shown,start=performance.now(),dur=550;
+  const step=t=>{const p=Math.min(1,(t-start)/dur),e=1-Math.pow(1-p,3);
+    shown=from+(target-from)*e;grandEl.textContent=money(shown);
+    if(p<1)raf=requestAnimationFrame(step);else shown=target;};
+  raf=requestAnimationFrame(step);
+  grandEl.classList.remove('bump');void grandEl.offsetWidth;grandEl.classList.add('bump');
+}
+function render(){
+  document.getElementById('n-adult').textContent=st.adult;
+  document.getElementById('n-child').textContent=st.child;
+  const ppl=st.adult+st.child;
+  const sleep=43200, bbq=17000;
+  const mianshui=ppl*150;                     // 免睡殿：不分大小人 NT$150（免費族群請自行扣除）
+  const forest=st.adult*250+st.child*150;     // 萌萌森林物語
+  const rows=[
+    ['🏰 白色城堡包棟',sleep],
+    ['🍖 代烤燒肉（約）',bbq],
+    [`🤸 免睡殿 · ${ppl} 人 × 150`,mianshui],
+    [`🦙 萌萌森林 · 大人 ${st.adult}×250 + 兒童 ${st.child}×150`,forest]
+  ];
+  document.getElementById('breakdown').innerHTML=
+    rows.map(r=>`<div class="bd"><span class="d">${r[0]}</span><span class="v">${money(r[1])}</span></div>`).join('');
+  const total=sleep+bbq+mianshui+forest;
+  countTo(total);
+  document.getElementById('ppl').textContent=ppl;
+  document.getElementById('perhead').textContent=ppl?money(Math.ceil(total/ppl)):'—';
+}
+document.querySelectorAll('.ctrl button').forEach(b=>b.addEventListener('click',e=>{
+  const t=b.dataset.t;st[t]=Math.max(0,st[t]+ +b.dataset.op);render();
+  const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top,['#F0A02E','#FF7A6B','#5CA24B']);
+}));
+render();
+
+/* ---------- confetti (fx canvas) ---------- */
+const fx=document.getElementById('fx'),fctx=fx.getContext('2d');
+let parts=[];
+function sizeFx(){fx.width=innerWidth*devicePixelRatio;fx.height=innerHeight*devicePixelRatio;
+  fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
+sizeFx();addEventListener('resize',sizeFx);
+function burst(x,y,colors){
+  if(reduce)return;
+  for(let i=0;i<40;i++){const a=Math.random()*Math.PI*2,sp=3+Math.random()*6;
+    parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-4,
+      s:5+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,
+      c:colors[i%colors.length],life:1});}
+  if(parts.length&&!fxRun){fxRun=true;requestAnimationFrame(tick);}
+}
+let fxRun=false;
+function tick(){
+  fctx.clearRect(0,0,fx.width,fx.height);
+  parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{p.vy+=.22;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;p.life-=.012;
+    fctx.save();fctx.translate(p.x,p.y);fctx.rotate(p.r);fctx.globalAlpha=Math.max(0,p.life);
+    fctx.fillStyle=p.c;fctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);fctx.restore();});
+  if(parts.length)requestAnimationFrame(tick);else{fctx.clearRect(0,0,fx.width,fx.height);fxRun=false;}
+}
+
+/* ---------- ambient bokeh (background canvas) ---------- */
+const bk=document.getElementById('bokeh'),bctx=bk.getContext('2d');
+let dots=[];
+function sizeBk(){bk.width=innerWidth*devicePixelRatio;bk.height=innerHeight*devicePixelRatio;
+  bctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  dots=Array.from({length:reduce?0:26},()=>({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    r:6+Math.random()*22,sp:.15+Math.random()*.5,
+    hue:['#FF7A6B','#F0A02E','#5CA24B','#189E9A','#8C6BD6'][Math.floor(Math.random()*5)],
+    a:.08+Math.random()*.12,ph:Math.random()*6.28}));}
+sizeBk();addEventListener('resize',sizeBk);
+let clock=0;
+function bloom(){
+  clock+=.016;bctx.clearRect(0,0,bk.width,bk.height);
+  dots.forEach(d=>{d.y-=d.sp;if(d.y<-40)d.y=innerHeight+40;
+    const x=d.x+Math.sin(clock+d.ph)*16;
+    bctx.globalAlpha=d.a*(.7+.3*Math.sin(clock*1.5+d.ph));
+    bctx.fillStyle=d.hue;bctx.beginPath();bctx.arc(x,d.y,d.r,0,6.283);bctx.fill();});
+  bctx.globalAlpha=1;requestAnimationFrame(bloom);
+}
+if(!reduce)bloom();
+
+/* opening celebration */
+if(!reduce)setTimeout(()=>burst(innerWidth/2,innerHeight*.28,['#FF7A6B','#F0A02E','#FFD36B','#5CA24B','#189E9A']),450);
+
+/* ---------- 依現在時間定位行程 ---------- */
+// 每站開始時間（月份 0 起算：7 = 8 月）
+const dayDates=[[2026,7,29],[2026,7,30]];
+const startTimes=[
+  [[11,30],[13,30],[15,0],[18,0]],   // DAY 1
+  [[11,0],[11,30],[12,30],[14,20]]   // DAY 2
+];
+const DAY_MS=86400000;
+function schedule(){
+  const flat=[];
+  startTimes.forEach((day,di)=>day.forEach((hm,si)=>{
+    const [Y,M,D]=dayDates[di];
+    flat.push({di,si,t:new Date(Y,M,D,hm[0],hm[1],0)});
+  }));
+  return flat.sort((a,b)=>a.t-b.t);
+}
+function currentStop(){
+  const now=new Date(),flat=schedule(),first=flat[0],last=flat[flat.length-1];
+  if(now<first.t){
+    const days=Math.ceil((first.t-now)/DAY_MS);
+    return {...first,status:'upcoming',days};
+  }
+  if(now>=new Date(last.t.getTime()+3*3600*1000)) return {...last,status:'ended'};
+  let active=first;for(const f of flat){if(f.t<=now)active=f;}
+  return {...active,status:'current'};
+}
+function badgeText(c){
+  if(c.status==='current') return '🔴 進行中';
+  if(c.status==='ended')   return '✅ 行程結束';
+  return c.days>0 ? `⏰ 還有 ${c.days} 天出發` : '⏰ 即將出發';
+}
+function markActive(c){
+  document.querySelectorAll('.stop.active-now').forEach(s=>s.classList.remove('active-now'));
+  document.querySelectorAll('.now-badge').forEach(b=>b.remove());
+  const el=document.getElementById(`stop-${c.di}-${c.si}`);
+  if(!el)return null;
+  el.classList.add('active-now');
+  const badge=document.createElement('span');
+  badge.className='now-badge';badge.textContent=badgeText(c);
+  el.querySelector('.c-head').insertBefore(badge,el.querySelector('.c-head').firstChild);
+  return el;
+}
+function gotoNow(force){
+  const c=currentStop();
+  selectDay(c.di);
+  const el=markActive(c);
+  if((force||c.status==='current')&&el){
+    el.querySelector('.card').classList.add('reveal');
+    setTimeout(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}),120);
+  }
+}
+document.getElementById('nowBtn').addEventListener('click',()=>gotoNow(true));
+gotoNow(false);
+setInterval(()=>markActive(currentStop()),60000); // 每分鐘更新標記
+</script>
+
+</html>
