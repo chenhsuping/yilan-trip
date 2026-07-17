@@ -381,7 +381,7 @@
     </div>
     <div class="breakdown" id="breakdown"></div>
     <div class="total"><span class="d">預估總計（不含餐飲）</span><span class="v" id="grand">—</span></div>
-    <div class="perhead"><span class="d">👥 每人均分 · <b id="ppl">—</b> 人</span><span class="pv" id="perhead">—</span></div>
+    <div class="perhead"><span class="d">🧑 大人均分 · <b id="ppl">—</b> 位（兒童不分攤）</span><span class="pv" id="perhead">—</span></div>
     <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，兒童票適用 6–12 歲，實際票價以現場公告為準。</div>
   </div>
 
@@ -495,8 +495,9 @@ function render(){
     rows.map(r=>`<div class="bd"><span class="d">${r[0]}</span><span class="v">${money(r[1])}</span></div>`).join('');
   const total=sleep+bbq+mianshui+forest;
   countTo(total);
-  document.getElementById('ppl').textContent=ppl;
-  document.getElementById('perhead').textContent=ppl?money(Math.ceil(total/ppl)):'—';
+  // 費用全額（含兒童門票）只由大人均分
+  document.getElementById('ppl').textContent=st.adult;
+  document.getElementById('perhead').textContent=st.adult?money(Math.ceil(total/st.adult)):'—';
 }
 document.querySelectorAll('.ctrl button').forEach(b=>b.addEventListener('click',e=>{
   const t=b.dataset.t;st[t]=Math.max(0,st[t]+ +b.dataset.op);render();
