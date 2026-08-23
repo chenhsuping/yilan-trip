@@ -300,7 +300,22 @@
     transition:background .15s,color .15s,transform .15s}
   .ty-x:hover{background:var(--coral);color:#fff;transform:rotate(90deg)}
   .ty-x:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
-  .ty-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;flex:1;min-height:0;background:var(--cream)}
+  .ty-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;flex:1;min-height:0;background:var(--cream)}
+  .ty-body{margin:0}
+  /* 出遊兩天天氣 */
+  .wx{margin-bottom:14px}
+  .wx-hd{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:8px;text-align:center;letter-spacing:.3px}
+  .wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .wx-card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 10px;text-align:center}
+  .wx-day{font-size:11px;font-weight:900;color:var(--coral);letter-spacing:.3px}
+  .wx-ico{font-size:32px;line-height:1.35;margin:2px 0}
+  .wx-desc{font-size:13px;font-weight:900;color:var(--ink)}
+  .wx-t{font-size:14px;font-weight:900;color:var(--ink);margin-top:3px}
+  .wx-t b{color:var(--honey);font-size:19px}
+  .wx-t i{font-style:normal;color:var(--muted);font-weight:700}
+  .wx-rain{font-size:11px;color:var(--teal);font-weight:900;margin-top:4px}
+  .wx-note{margin-top:8px;font-size:11px;color:var(--muted);text-align:center;line-height:1.7}
+  .wx-load{padding:14px;text-align:center;font-size:12px;color:var(--muted)}
   .ty-body video{display:block;width:100%;height:auto;aspect-ratio:1382/720;border-radius:14px;
     background:#000;box-shadow:var(--shadow-sm)}
   .ty-body img{display:block;width:100%;height:auto;border-radius:14px;box-shadow:var(--shadow-sm)}
@@ -317,7 +332,8 @@
     .ty-mask{padding:10px}
     .ty-head{padding:13px 14px}
     .ty-head h2{font-size:15px}
-    .ty-body{padding:10px}
+    .ty-scroll{padding:10px}
+    .wx-grid{grid-template-columns:1fr}
     .ty-foot{font-size:11px;padding:10px 12px 12px}
   }
 
@@ -444,12 +460,15 @@
 <div class="ty-mask" id="tyMask" role="dialog" aria-modal="true" aria-labelledby="tyTitle" aria-hidden="true">
   <div class="ty-box">
     <div class="ty-head">
-      <h2 id="tyTitle">🌀 各國颱風路徑動畫</h2>
+      <h2 id="tyTitle">🌀 颱風與出遊天氣</h2>
       <button class="ty-x" id="tyX" type="button" aria-label="關閉颱風視窗">✕</button>
     </div>
-    <div class="ty-body" id="tyBody"></div>
+    <div class="ty-scroll">
+      <div class="wx" id="tyWx"></div>
+      <div class="ty-body" id="tyBody"></div>
+    </div>
     <div class="ty-foot">
-      資料來源：<a href="https://watch.ncdr.nat.gov.tw/watch_tracks" target="_blank" rel="noopener">NCDR 天氣與氣候監測網</a><br>
+      颱風路徑：<a href="https://watch.ncdr.nat.gov.tw/watch_typhoon" target="_blank" rel="noopener">NCDR</a> · 天氣預報：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><br>
       每 6 小時更新一次 · 影片可暫停與拖曳
     </div>
   </div>
@@ -772,11 +791,78 @@ function tyLoad(){
   tyTryMp4(tyLatestSlot(),TY_BACK);
 }
 
+
+/* ---------------- 出遊兩天天氣預報 ---------------- */
+/* 來源：Open-Meteo（免 API 金鑰、送 access-control-allow-origin: *，可跨站直接 fetch）
+   註：中央氣象署開放資料 API 需要金鑰，公開靜態頁藏不住，故不採用。
+   日期直接沿用上方的 dayDates，不另外寫死一份，避免改行程時漏改。 */
+const WX_API='https://api.open-meteo.com/v1/forecast';
+const WX_LAT=24.6836, WX_LON=121.7981;      // 宜蘭五結（民宿所在，兩天行程重心）
+const WX_PLACE='宜蘭';
+const WMO={                                  // WMO weather code → 圖示與中文
+  0:['☀️','晴朗'],1:['🌤️','大致晴朗'],2:['⛅','多雲時晴'],3:['☁️','陰天'],
+  45:['🌫️','有霧'],48:['🌫️','濃霧'],
+  51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨（較大）'],
+  56:['🌧️','凍毛毛雨'],57:['🌧️','凍毛毛雨'],
+  61:['🌧️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],
+  66:['🌧️','凍雨'],67:['🌧️','凍雨'],
+  71:['🌨️','小雪'],73:['🌨️','中雪'],75:['🌨️','大雪'],77:['🌨️','霰'],
+  80:['🌦️','短暫陣雨'],81:['🌧️','陣雨'],82:['⛈️','強陣雨'],
+  85:['🌨️','陣雪'],86:['🌨️','大陣雪'],
+  95:['⛈️','雷雨'],96:['⛈️','雷雨夾冰雹'],99:['⛈️','強雷雨冰雹']
+};
+const tyWx=document.getElementById('tyWx');
+let wxDone=false;                            // 同一次瀏覽只抓一次
+
+function wxISO(d){ return d[0]+'-'+tyPad(d[1]+1)+'-'+tyPad(d[2]); }   // dayDates 的月份是 0-based
+function wxWeekday(iso){ return '日一二三四五六'[new Date(iso+'T12:00:00+08:00').getUTCDay()]; }
+function wxDaysLeft(iso){                    // 以台灣時間算還有幾天出發
+  const tw=new Date(Date.now()+8*3600000);
+  const today=Date.UTC(tw.getUTCFullYear(),tw.getUTCMonth(),tw.getUTCDate());
+  const p=iso.split('-');
+  return Math.round((Date.UTC(+p[0],p[1]-1,+p[2])-today)/86400000);
+}
+function wxRender(j){
+  const d=j&&j.daily;
+  if(!d||!d.time||!d.time.length){ tyWx.innerHTML=''; return; }
+  let cards='';
+  d.time.forEach((iso,i)=>{
+    const w=WMO[d.weather_code[i]]||['🌡️','—'];
+    cards+='<div class="wx-card">'+
+      '<div class="wx-day">DAY '+(i+1)+' · '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）</div>'+
+      '<div class="wx-ico">'+w[0]+'</div>'+
+      '<div class="wx-desc">'+w[1]+'</div>'+
+      '<div class="wx-t"><b>'+Math.round(d.temperature_2m_max[i])+'°</b> <i>/ '+
+        Math.round(d.temperature_2m_min[i])+'°</i></div>'+
+      '<div class="wx-rain">☔ 降雨機率 '+d.precipitation_probability_max[i]+'%</div>'+
+    '</div>';
+  });
+  const left=wxDaysLeft(d.time[0]);
+  const note=left>0
+    ? '距出發還有 '+left+' 天 · 一週外的預報僅供參考，越接近出發越準'
+    : '預報會隨時間修正，出發前建議再看一次';
+  tyWx.innerHTML='<div class="wx-hd">🌤️ 出遊兩天天氣 · '+WX_PLACE+'</div>'+
+                 '<div class="wx-grid">'+cards+'</div>'+
+                 '<div class="wx-note">'+note+'</div>';
+}
+function wxLoad(){
+  if(wxDone) return;
+  tyWx.innerHTML='<div class="wx-load">☁️ 正在取得天氣預報…</div>';
+  const q=WX_API+'?latitude='+WX_LAT+'&longitude='+WX_LON+
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'+
+    '&timezone=Asia%2FTaipei'+
+    '&start_date='+wxISO(dayDates[0])+'&end_date='+wxISO(dayDates[dayDates.length-1]);
+  fetch(q).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+    .then(j=>{ wxRender(j); wxDone=true; })
+    .catch(()=>{ tyWx.innerHTML=''; });      // 天氣抓不到就整塊收掉，不影響颱風影片
+}
+
 function tyOpen(){
   tyPrevFocus=document.activeElement;
   tyMask.classList.add('on');
   tyMask.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';   // 鎖背景捲動
+  wxLoad();
   tyLoad();
   tyX.focus();
 }
@@ -812,13 +898,8 @@ tyDarkMQ.addEventListener('change',()=>{
   if(tyIsOpen()&&!tyVideo&&tyBody.querySelector('img')) tyLoadStill();
 });
 
-// 首次造訪自動開啟一次，之後只走按鈕（localStorage 在無痕模式可能丟例外）
-try{
-  if(!localStorage.getItem('ty-seen')){
-    localStorage.setItem('ty-seen','1');
-    setTimeout(tyOpen,900);
-  }
-}catch(err){}
+// 每次進入頁面都自動開啟一次
+setTimeout(tyOpen,900);
 </script>
 </body>
 </html>
