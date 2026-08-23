@@ -273,6 +273,54 @@
   #nowBtn:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
   @media(max-width:560px){#nowBtn{right:12px;bottom:12px;padding:12px 15px;font-size:13px}}
 
+  /* ---------- TYPHOON ---------- */
+  #tyBtn{position:fixed;right:18px;bottom:76px;z-index:50;border:none;cursor:pointer;font-family:inherit;
+    font-weight:900;font-size:14px;color:#fff;padding:13px 18px;border-radius:100px;
+    background:linear-gradient(120deg,var(--teal),var(--grape));box-shadow:var(--shadow);
+    transition:transform .15s,box-shadow .2s}
+  #tyBtn:hover{transform:translateY(-2px)}
+  #tyBtn:active{transform:scale(.94)}
+  #tyBtn:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
+  #tyBtn .sw{display:inline-block;animation:swirl 5s linear infinite}
+  @keyframes swirl{to{transform:rotate(360deg)}}
+  @media(max-width:560px){#tyBtn{right:12px;bottom:66px;padding:12px 15px;font-size:13px}}
+
+  .ty-mask{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+    padding:16px;background:rgba(40,24,18,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  .ty-mask.on{display:flex;animation:tyFade .25s ease}
+  @keyframes tyFade{from{opacity:0}to{opacity:1}}
+  .ty-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    width:min(960px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
+    animation:tyPop .3s cubic-bezier(.2,.9,.3,1.25)}
+  @keyframes tyPop{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+  .ty-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:2px solid var(--line);flex:none}
+  .ty-head h2{margin:0;font-size:17px;font-weight:900;flex:1;color:var(--ink);letter-spacing:.3px}
+  .ty-x{border:none;background:var(--line);color:var(--ink);width:34px;height:34px;border-radius:50%;
+    cursor:pointer;font-size:16px;font-weight:900;line-height:1;flex:none;font-family:inherit;
+    transition:background .15s,color .15s,transform .15s}
+  .ty-x:hover{background:var(--coral);color:#fff;transform:rotate(90deg)}
+  .ty-x:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  .ty-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;flex:1;min-height:0;background:var(--cream)}
+  .ty-body video{display:block;width:100%;height:auto;aspect-ratio:1382/720;border-radius:14px;
+    background:#000;box-shadow:var(--shadow-sm)}
+  .ty-body img{display:block;width:100%;height:auto;border-radius:14px;box-shadow:var(--shadow-sm)}
+  .ty-cap{margin-top:10px;text-align:center;font-size:12px;color:var(--muted);line-height:1.7}
+  .ty-cap a{color:var(--teal);font-weight:900}
+  .ty-msg{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
+  .ty-msg small{display:block;margin-top:6px;font-size:11px;opacity:.8}
+  .ty-msg a{color:var(--teal);font-weight:900}
+  .ty-msg .em{display:block;font-size:34px;margin-bottom:8px}
+  .ty-foot{padding:11px 18px 14px;font-size:12px;color:var(--muted);border-top:2px solid var(--line);
+    flex:none;text-align:center;line-height:1.8}
+  .ty-foot a{color:var(--teal);font-weight:900}
+  @media(max-width:560px){
+    .ty-mask{padding:10px}
+    .ty-head{padding:13px 14px}
+    .ty-head h2{font-size:15px}
+    .ty-body{padding:10px}
+    .ty-foot{font-size:11px;padding:10px 12px 12px}
+  }
+
   /* ---------- OUTRO ---------- */
   .outro{text-align:center;margin-top:40px;font-weight:900;font-size:20px;color:var(--leek)}
   .outro .em{font-size:30px;display:block;margin-bottom:6px}
@@ -386,11 +434,26 @@
   </div>
 
   <button id="nowBtn" type="button" aria-label="跳到目前行程">📍 目前行程</button>
+  <button id="tyBtn" type="button" aria-label="查看各國颱風預報路徑"><span class="sw">🌀</span> 颱風動態</button>
 
   <div class="outro"><span class="em">🎒</span>回程 · 準備迎接開學！</div>
   <div class="credit">為家庭出遊而做的互動行程表 · 點站名可開啟 Google 地圖導航</div>
 </div>
 
+
+<div class="ty-mask" id="tyMask" role="dialog" aria-modal="true" aria-labelledby="tyTitle" aria-hidden="true">
+  <div class="ty-box">
+    <div class="ty-head">
+      <h2 id="tyTitle">🌀 各國颱風路徑動畫</h2>
+      <button class="ty-x" id="tyX" type="button" aria-label="關閉颱風視窗">✕</button>
+    </div>
+    <div class="ty-body" id="tyBody"></div>
+    <div class="ty-foot">
+      資料來源：<a href="https://watch.ncdr.nat.gov.tw/watch_tracks" target="_blank" rel="noopener">NCDR 天氣與氣候監測網</a><br>
+      每 6 小時更新一次 · 影片可暫停與拖曳
+    </div>
+  </div>
+</div>
 <script>
 const trip=[
  [
@@ -608,6 +671,154 @@ function gotoNow(force){
 document.getElementById('nowBtn').addEventListener('click',()=>gotoNow(true));
 gotoNow(false);
 setInterval(()=>markActive(currentStop()),60000); // 每分鐘更新標記
+
+/* ================= 各國颱風路徑動畫 · 蓋版視窗 ================= */
+/* 來源：NCDR 天氣與氣候監測網
+   影片：/00_Wxmap/0A3_TYPHOON_MP4/{YYYYMM}/{YYYYMMDD}_{HH}.mp4
+         每 6 小時發布一支（台灣時間 02/08/14/20），1382x720、約 36 秒、約 1MB
+   註1：NCDR 的清單 API（wh/jn_typhoon_mp4）沒有 CORS 標頭，跨站讀不到，
+        所以改用「依台灣時間推算最近時段、失敗就往前退 6 小時」的方式找最新一支。
+   註2：影片 moov 在 mdat 之後（非 faststart），必須整支載完才會播，故有載入中狀態。
+   註3：影片全部載不到時，退回同來源的靜態路徑圖（隨主題深／淺色），再不行才顯示連結。 */
+const TY_MP4='https://watch.ncdr.nat.gov.tw/00_Wxmap/0A3_TYPHOON_MP4/';
+const TY_PNG='https://watch.ncdr.nat.gov.tw/00_Wxmap/images/';
+const TY_PNG_IMG={dark:'track_map_1s.png',light:'track_map_2s.png'};
+const TY_SRC_PAGE='https://watch.ncdr.nat.gov.tw/watch_typhoon';
+const TY_BACK=8;                     // 最多往前回退 8 個時段（48 小時）
+const tyMask=document.getElementById('tyMask');
+const tyBody=document.getElementById('tyBody');
+const tyBtn=document.getElementById('tyBtn');
+const tyX=document.getElementById('tyX');
+const tyDarkMQ=window.matchMedia('(prefers-color-scheme:dark)');
+let tyPrevFocus=null, tyVideo=null;
+
+// 主題判定：data-theme 覆蓋優先，否則跟系統
+function tyIsDark(){
+  const forced=document.documentElement.getAttribute('data-theme');
+  if(forced) return forced==='dark';
+  return tyDarkMQ.matches;
+}
+// 以台灣時間（UTC+8）取最近一個發布時段；用 UTC getter 讀，訪客在哪個時區都一樣
+function tyLatestSlot(){
+  const t=new Date(Date.now()+8*3600000);
+  const h=t.getUTCHours();
+  if(h<2){ t.setUTCDate(t.getUTCDate()-1); t.setUTCHours(20,0,0,0); }
+  else   { t.setUTCHours(Math.floor((h-2)/6)*6+2,0,0,0); }
+  return t;
+}
+function tySlotBack(t){ const p=new Date(t); p.setUTCHours(p.getUTCHours()-6); return p; }
+function tyPad(n){ return String(n).padStart(2,'0'); }
+function tySlotName(t){                       // 20260823_08
+  return t.getUTCFullYear()+tyPad(t.getUTCMonth()+1)+tyPad(t.getUTCDate())+'_'+tyPad(t.getUTCHours());
+}
+function tySlotUrl(t){                        // 每 10 分鐘換一次查詢字串：夠新，又不會每次開啟都重抓 1MB
+  const name=tySlotName(t);
+  return TY_MP4+name.substr(0,6)+'/'+name+'.mp4?tt='+Math.floor(Date.now()/600000);
+}
+function tySlotLabel(t){                      // 2026-08-23 08:00
+  return t.getUTCFullYear()+'-'+tyPad(t.getUTCMonth()+1)+'-'+tyPad(t.getUTCDate())+
+         ' '+tyPad(t.getUTCHours())+':00';
+}
+function tyMsg(html){ tyBody.innerHTML='<div class="ty-msg">'+html+'</div>'; }
+function tyLink(text){
+  return '<a href="'+TY_SRC_PAGE+'" target="_blank" rel="noopener">'+text+'</a>';
+}
+
+// 影片載不到時，退回靜態路徑圖（同一個資料來源，隨主題選深／淺色版）
+function tyLoadStill(){
+  const img=new Image();
+  img.alt='各國颱風預報路徑圖';
+  img.addEventListener('load',()=>{
+    tyBody.innerHTML='';
+    tyBody.appendChild(img);
+    const cap=document.createElement('div');
+    cap.className='ty-cap';
+    cap.innerHTML='⚠️ 取不到路徑動畫，改顯示最新靜態路徑圖 · '+tyLink('前往 NCDR');
+    tyBody.appendChild(cap);
+  },{once:true});
+  img.addEventListener('error',()=>{
+    tyMsg('<span class="em">📡</span>目前取不到颱風路徑資料。<br>可能是沒有網路連線，或來源網站暫時無法連線。<br>'+
+          tyLink('👉 直接前往 NCDR 查看'));
+  },{once:true});
+  img.src=TY_PNG+TY_PNG_IMG[tyIsDark()?'dark':'light']+'?t='+Date.now();
+}
+
+// 從最近時段開始試，404 就往前退 6 小時；NCDR 產製有延遲，所以一定要能回退
+function tyTryMp4(slot,left){
+  if(left<=0){ tyLoadStill(); return; }
+  const v=document.createElement('video');
+  v.muted=true; v.autoplay=true; v.loop=true; v.controls=true; v.preload='auto';
+  v.setAttribute('muted','');        // Safari 要屬性才肯自動播
+  v.setAttribute('playsinline','');
+  v.setAttribute('aria-label','各國颱風預報路徑動畫（'+tySlotLabel(slot)+'）');
+  v.addEventListener('canplay',()=>{
+    tyVideo=v;
+    tyBody.innerHTML='';
+    tyBody.appendChild(v);
+    const cap=document.createElement('div');
+    cap.className='ty-cap';
+    cap.textContent='資料時間 '+tySlotLabel(slot)+'（台灣時間）· 每 6 小時更新';
+    tyBody.appendChild(cap);
+    const p=v.play(); if(p&&p.catch) p.catch(()=>{});   // 自動播被擋就算了，有 controls 可手動播
+  },{once:true});
+  v.addEventListener('error',()=>{ tyTryMp4(tySlotBack(slot),left-1); },{once:true});
+  v.src=tySlotUrl(slot);
+  v.load();
+}
+
+function tyLoad(){
+  tyVideo=null;
+  tyMsg('<span class="em">🛰️</span>正在取得最新颱風路徑動畫…<br><small>影片約 1MB，需完整載入才會開始播放</small>');
+  tyTryMp4(tyLatestSlot(),TY_BACK);
+}
+
+function tyOpen(){
+  tyPrevFocus=document.activeElement;
+  tyMask.classList.add('on');
+  tyMask.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';   // 鎖背景捲動
+  tyLoad();
+  tyX.focus();
+}
+function tyClose(){
+  if(tyVideo){ tyVideo.pause(); tyVideo.removeAttribute('src'); tyVideo.load(); }  // 停掉下載與播放
+  tyVideo=null;
+  tyMask.classList.remove('on');
+  tyMask.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  tyBody.innerHTML='';
+  if(tyPrevFocus&&tyPrevFocus.focus) tyPrevFocus.focus();
+}
+function tyIsOpen(){ return tyMask.classList.contains('on'); }
+
+tyBtn.addEventListener('click',tyOpen);
+tyX.addEventListener('click',tyClose);
+tyMask.addEventListener('click',e=>{ if(e.target===tyMask) tyClose(); });   // 點遮罩關閉
+
+document.addEventListener('keydown',e=>{
+  if(!tyIsOpen()) return;
+  if(e.key==='Escape'){ tyClose(); return; }
+  if(e.key==='Tab'){                                                        // focus trap
+    const f=tyMask.querySelectorAll('button,a[href],video[controls]');
+    if(!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+// 只有在退回靜態圖時，主題才影響畫面；影片本身不分深淺色，不需要重載
+tyDarkMQ.addEventListener('change',()=>{
+  if(tyIsOpen()&&!tyVideo&&tyBody.querySelector('img')) tyLoadStill();
+});
+
+// 首次造訪自動開啟一次，之後只走按鈕（localStorage 在無痕模式可能丟例外）
+try{
+  if(!localStorage.getItem('ty-seen')){
+    localStorage.setItem('ty-seen','1');
+    setTimeout(tyOpen,900);
+  }
+}catch(err){}
 </script>
 </body>
 </html>
