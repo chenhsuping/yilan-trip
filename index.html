@@ -375,6 +375,10 @@
   .gd-sec dt{font-weight:900;font-size:13.5px;color:var(--teal)}
   .gd-sec dd{margin:2px 0 0;font-size:14px;color:var(--ink);line-height:1.75}
   .gd-sec dd em{font-style:normal;font-weight:900;color:var(--coral)}
+  .gd-sec p{margin:0 0 10px;font-size:14px;line-height:1.75}
+  .gd-sec p em{font-style:normal;font-weight:900;color:var(--coral)}
+  .gd-sec .gd-note{margin:11px 0 0;padding-top:10px;font-size:12.5px;color:var(--muted);
+    border-top:1.5px dashed var(--line)}
   .gd-key{display:inline-block;font-weight:900;color:#fff;background:var(--coral);
     padding:1px 9px;border-radius:8px;margin:0 2px}
   .gd-soon{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
@@ -500,12 +504,12 @@
         </button>
         <button class="gd-btn" type="button" data-g="room">
           <span class="gi">🔑</span>
-          <span class="gt"><b>房間門鎖使用教學</b><small>房門上鎖與解鎖操作</small></span>
+          <span class="gt"><b>房間門鎖使用教學</b><small>碰面板、輸入密碼、按 ✓ 開門</small></span>
           <span class="ga">›</span>
         </button>
         <button class="gd-btn" type="button" data-g="tv">
           <span class="gi">📺</span>
-          <span class="gt"><b>大廳電視使用教學</b><small>電視開關與訊號源切換</small></span>
+          <span class="gt"><b>大廳電視使用教學</b><small>遙控器、Netflix／YouTube、HDMI 切換</small></span>
           <span class="ga">›</span>
         </button>
       </div>
@@ -984,8 +988,41 @@ const GUIDE={
         '<dt>返回開鎖</dt><dd>返回民宿時，碰一下面板點亮 ➔ 輸入入住密碼 ➔ 務必按下<span class="gd-key">＊</span>號鍵，即可開門進出。</dd>'+
       '</dl></div>'
   },
-  room:{ title:'🔑 房間門鎖使用教學', html:'' },
-  tv:{   title:'📺 大廳電視使用教學', html:'' }
+  room:{
+    title:'🔑 房間門鎖使用教學',
+    html:
+      '<div class="gd-sec"><h3><span class="no">1</span>開鎖步驟</h3><dl>'+
+        '<dt>喚醒面板</dt><dd>手掌<em>輕碰一下電子鎖面板</em>點亮螢幕。</dd>'+
+        '<dt>輸入密碼</dt><dd>輸入入住當天告知的<em>房間密碼</em>。</dd>'+
+        '<dt>確認開門</dt><dd>輸入完畢後按右下角的打勾<span class="gd-key">✓</span>鍵，即可快速解鎖開門。</dd>'+
+      '</dl></div>'+
+      '<div class="gd-sec"><h3><span class="no">2</span>注意事項</h3><dl>'+
+        '<dt>防盜鎖定</dt><dd>若密碼<em>連續輸入錯誤 3 次</em>，系統會啟動防盜機制並<em>鎖定 5 分鐘</em>無法操作。</dd>'+
+        '<dt>請勿玩耍</dt><dd>提醒請勿讓小朋友隨意按壓或玩耍門鎖，以免觸發鎖定。</dd>'+
+      '</dl></div>'
+  },
+  tv:{
+    title:'📺 大廳電視使用教學',
+    html:
+      '<div class="gd-sec"><h3><span class="no">1</span>基本操作說明</h3><dl>'+
+        '<dt>遙控器與導向</dt><dd>請使用<em>小支遙控器</em>，利用「上、下、左、右」方向鍵進行選擇，中間按鈕為'+
+          '<span class="gd-key">OK</span>確認鍵。</dd>'+
+        '<dt>返回主頁</dt><dd>操作中若不確定如何處理，統一按下<span class="gd-key">圓圈</span>鍵即可返回主畫面。</dd>'+
+      '</dl></div>'+
+      '<div class="gd-sec"><h3><span class="no">2</span>影音與串流服務</h3><dl>'+
+        '<dt>YouTube</dt><dd>可自行登入帳號使用，<em>退房時請務必記得登出</em>。</dd>'+
+        '<dt>Netflix</dt><dd>民宿免費提供觀看。</dd>'+
+        '<dt>大廳頻道規範</dt><dd>請務必觀看<em>專屬大廳的頻道</em>（大廳請看大廳頻道、冰雪房看冰雪頻道），'+
+          '切勿跨房搶頻道，以免無法觀看。</dd>'+
+      '</dl></div>'+
+      '<div class="gd-sec"><h3><span class="no">3</span>訊號源切換（HDMI 輸入選單）</h3>'+
+        '<p>點選主畫面右上角的<em>箭頭方塊（輸入源）</em>可進行功能切換：</p><dl>'+
+        '<dt>卡拉 OK</dt><dd>選取切換至<span class="gd-key">HDMI 3</span>（大廳唱 KTV 使用）。</dd>'+
+        '<dt>Switch 遊戲機</dt><dd>自備 Switch 的客人在大廳玩，請切換至<span class="gd-key">HDMI 2</span>。</dd>'+
+        '</dl>'+
+        '<p class="gd-note">房間電視訊號備註：房間內的 Switch 為 HDMI 1、房間第四台為 HDMI 3。</p>'+
+      '</div>'
+  }
 };
 const GD_SOON='<div class="gd-soon"><span class="em">🛠️</span>這項教學稍後補上，<br>敬請期待！</div>';
 
