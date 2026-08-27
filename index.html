@@ -381,6 +381,13 @@
     border-top:1.5px dashed var(--line)}
   .gd-key{display:inline-block;font-weight:900;color:#fff;background:var(--coral);
     padding:1px 9px;border-radius:8px;margin:0 2px}
+  .gd-vid{display:inline-flex;align-items:center;gap:7px;margin:0 0 14px;font-size:13px;font-weight:900;
+    color:#fff;text-decoration:none;padding:9px 16px;border-radius:100px;
+    background:linear-gradient(120deg,var(--coral),var(--honey));box-shadow:var(--shadow-sm);
+    transition:transform .15s,box-shadow .2s}
+  .gd-vid:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .gd-vid:active{transform:scale(.96)}
+  .gd-vid:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
   .gd-soon{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
   .gd-soon .em{display:block;font-size:34px;margin-bottom:8px}
   .ty-msg{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
@@ -974,6 +981,7 @@ let gdPrevFocus=null;
 const GUIDE={
   door:{
     title:'🚪 大門電子鎖使用教學',
+    video:'https://youtube.com/shorts/g2cStbljO9E?si=gyJrDFhZoAPw6get',
     html:
       '<div class="gd-sec"><h3><span class="no">1</span>入住狀態說明</h3><dl>'+
         '<dt>自由進出</dt><dd>入住期間大門已設定<em>解除密碼鎖</em>，平常進出不需要輸入密碼。</dd>'+
@@ -990,6 +998,7 @@ const GUIDE={
   },
   room:{
     title:'🔑 房間門鎖使用教學',
+    video:'https://youtube.com/shorts/I8dzijTR474?si=wxictwz-bHr7B2-g',
     html:
       '<div class="gd-sec"><h3><span class="no">1</span>開鎖步驟</h3><dl>'+
         '<dt>喚醒面板</dt><dd>手掌<em>輕碰一下電子鎖面板</em>點亮螢幕。</dd>'+
@@ -1003,6 +1012,7 @@ const GUIDE={
   },
   tv:{
     title:'📺 大廳電視使用教學',
+    video:'https://youtube.com/shorts/5_WMApgK0-M?si=Rt1FjW6EpcppOrJA',
     html:
       '<div class="gd-sec"><h3><span class="no">1</span>基本操作說明</h3><dl>'+
         '<dt>遙控器與導向</dt><dd>請使用<em>小支遙控器</em>，利用「上、下、左、右」方向鍵進行選擇，中間按鈕為'+
@@ -1025,12 +1035,16 @@ const GUIDE={
   }
 };
 const GD_SOON='<div class="gd-soon"><span class="em">🛠️</span>這項教學稍後補上，<br>敬請期待！</div>';
+// 影片連結按鈕：另開分頁看 YouTube 短影片，文字步驟仍留在視窗裡
+function gdVid(url){
+  return '<a class="gd-vid" href="'+url+'" target="_blank" rel="noopener">▶️ 看影片教學</a>';
+}
 
 function gdOpen(key){
   const g=GUIDE[key]; if(!g) return;
   gdPrevFocus=document.activeElement;
   gdTitle.textContent=g.title;
-  gdBody.innerHTML=g.html||GD_SOON;
+  gdBody.innerHTML=(g.video?gdVid(g.video):'')+(g.html||GD_SOON);
   gdMask.classList.add('on');
   gdMask.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
