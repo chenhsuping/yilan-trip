@@ -147,6 +147,7 @@
   .tab[aria-selected="true"]{color:#fff;transform:translateY(-2px)}
   .tab[data-d="0"][aria-selected="true"]{background:linear-gradient(120deg,var(--coral),var(--honey))}
   .tab[data-d="1"][aria-selected="true"]{background:linear-gradient(120deg,var(--teal),var(--leek))}
+  .tab[data-d="2"][aria-selected="true"]{background:linear-gradient(120deg,var(--grape),var(--coral))}
   .tab:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
 
   /* ---------- TIMELINE ---------- */
@@ -273,7 +274,7 @@
   #nowBtn:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
   @media(max-width:560px){#nowBtn{right:12px;bottom:12px;padding:12px 15px;font-size:13px}}
 
-  /* ---------- TYPHOON ---------- */
+  /* ---------- WEATHER ---------- */
   #tyBtn{position:fixed;right:18px;bottom:76px;z-index:50;border:none;cursor:pointer;font-family:inherit;
     font-weight:900;font-size:14px;color:#fff;padding:13px 18px;border-radius:100px;
     background:linear-gradient(120deg,var(--teal),var(--grape));box-shadow:var(--shadow);
@@ -281,8 +282,8 @@
   #tyBtn:hover{transform:translateY(-2px)}
   #tyBtn:active{transform:scale(.94)}
   #tyBtn:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
-  #tyBtn .sw{display:inline-block;animation:swirl 5s linear infinite}
-  @keyframes swirl{to{transform:rotate(360deg)}}
+  #tyBtn .sw{display:inline-block;animation:swirl 3.6s ease-in-out infinite}
+  @keyframes swirl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(6deg)}}
   @media(max-width:560px){#tyBtn{right:12px;bottom:66px;padding:12px 15px;font-size:13px}}
 
   .ty-mask{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
@@ -302,11 +303,18 @@
   .ty-x:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
   .ty-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;flex:1;min-height:0;background:var(--cream)}
   .ty-body{margin:0}
-  /* 出遊兩天天氣 */
-  .wx{margin-bottom:14px}
+  /* 出遊兩天天氣（兩顆按鈕並排，點了下方列出逐時預報） */
+  .wx{margin-bottom:4px}
   .wx-hd{font-size:13px;font-weight:900;color:var(--ink);margin-bottom:8px;text-align:center;letter-spacing:.3px}
   .wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .wx-card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 10px;text-align:center}
+  .wx-card{display:block;width:100%;font-family:inherit;color:inherit;cursor:pointer;
+    background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 10px;text-align:center;
+    transition:transform .15s,border-color .2s,box-shadow .2s}
+  .wx-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .wx-card:active{transform:scale(.98)}
+  .wx-card:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  .wx-card[aria-selected="true"]{border-color:var(--coral);box-shadow:0 0 0 3px rgba(255,122,107,.18)}
+  .wx-card>span{display:block}
   .wx-day{font-size:11px;font-weight:900;color:var(--coral);letter-spacing:.3px}
   .wx-ico{font-size:32px;line-height:1.35;margin:2px 0}
   .wx-desc{font-size:13px;font-weight:900;color:var(--ink)}
@@ -314,13 +322,63 @@
   .wx-t b{color:var(--honey);font-size:19px}
   .wx-t i{font-style:normal;color:var(--muted);font-weight:700}
   .wx-rain{font-size:11px;color:var(--teal);font-weight:900;margin-top:4px}
+  .wx-pick{margin-top:7px;font-size:11px;font-weight:900;color:var(--teal);letter-spacing:.2px}
+  .wx-card[aria-selected="true"] .wx-pick{color:var(--coral)}
   .wx-note{margin-top:8px;font-size:11px;color:var(--muted);text-align:center;line-height:1.7}
   .wx-load{padding:14px;text-align:center;font-size:12px;color:var(--muted)}
-  .ty-body video{display:block;width:100%;height:auto;aspect-ratio:1382/720;border-radius:14px;
-    background:#000;box-shadow:var(--shadow-sm)}
-  .ty-body img{display:block;width:100%;height:auto;border-radius:14px;box-shadow:var(--shadow-sm)}
-  .ty-cap{margin-top:10px;text-align:center;font-size:12px;color:var(--muted);line-height:1.7}
-  .ty-cap a{color:var(--teal);font-weight:900}
+
+  /* 逐時預報表 */
+  .hr{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;overflow:hidden;
+    animation:fade .35s ease both}
+  .hr-hd{padding:10px 14px;font-size:13px;font-weight:900;color:var(--ink);
+    border-bottom:2px solid var(--line);display:flex;align-items:center;gap:8px;
+    background:linear-gradient(120deg,rgba(255,122,107,.14),rgba(240,160,46,.14))}
+  .hr-hd small{margin-left:auto;font-size:11px;font-weight:800;color:var(--muted)}
+  .hr-list{position:relative;max-height:44vh;overflow:auto;-webkit-overflow-scrolling:touch}
+  .hr-row{display:grid;grid-template-columns:50px 26px 1fr auto auto;align-items:center;gap:8px;
+    padding:8px 13px;border-top:1px solid var(--line);font-size:13px}
+  .hr-row:first-child{border-top:none}
+  .hr-row.trip{background:rgba(92,162,75,.10)}
+  .hr-row.now{background:rgba(255,122,107,.18)}
+  .hr-t{font-weight:900;font-variant-numeric:tabular-nums}
+  .hr-i{font-size:18px;text-align:center;line-height:1}
+  .hr-d{min-width:0;color:var(--muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hr-c{font-weight:900;font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+  .hr-p{font-weight:900;font-size:12px;color:var(--teal);font-variant-numeric:tabular-nums;
+    min-width:52px;text-align:right}
+  .hr-tip{padding:9px 13px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}
+
+  /* 住房指南 */
+  .guide{margin-top:24px}
+  .guide-hd{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
+  .guide-hd h2{margin:0 0 4px;font-size:22px;font-weight:900}
+  .guide-hd .sub{color:var(--muted);font-size:13.5px;margin:0}
+  .gd-btns{display:flex;flex-direction:column;gap:12px}
+  .gd-btn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font-family:inherit;color:inherit;
+    cursor:pointer;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 18px;
+    box-shadow:var(--shadow-sm);transition:transform .15s,border-color .2s,box-shadow .2s}
+  .gd-btn:hover{transform:translateY(-3px);border-color:var(--grape);box-shadow:var(--shadow)}
+  .gd-btn:active{transform:scale(.985)}
+  .gd-btn:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  .gd-btn .gi{font-size:30px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 4px 4px rgba(120,80,50,.15))}
+  .gd-btn .gt{flex:1;min-width:0}
+  .gd-btn .gt b{display:block;font-size:16.5px;font-weight:900}
+  .gd-btn .gt small{display:block;margin-top:3px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .gd-btn .ga{flex:0 0 auto;font-size:18px;color:var(--grape);font-weight:900}
+
+  .gd-sec{margin-bottom:16px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px 16px}
+  .gd-sec:last-child{margin-bottom:0}
+  .gd-sec h3{margin:0 0 10px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+  .gd-sec h3 .no{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:0 0 auto;
+    font-size:12.5px;color:#fff;background:linear-gradient(135deg,var(--grape),var(--coral))}
+  .gd-sec dl{margin:0;display:flex;flex-direction:column;gap:9px}
+  .gd-sec dt{font-weight:900;font-size:13.5px;color:var(--teal)}
+  .gd-sec dd{margin:2px 0 0;font-size:14px;color:var(--ink);line-height:1.75}
+  .gd-sec dd em{font-style:normal;font-weight:900;color:var(--coral)}
+  .gd-key{display:inline-block;font-weight:900;color:#fff;background:var(--coral);
+    padding:1px 9px;border-radius:8px;margin:0 2px}
+  .gd-soon{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
+  .gd-soon .em{display:block;font-size:34px;margin-bottom:8px}
   .ty-msg{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
   .ty-msg small{display:block;margin-top:6px;font-size:11px;opacity:.8}
   .ty-msg a{color:var(--teal);font-weight:900}
@@ -333,7 +391,12 @@
     .ty-head{padding:13px 14px}
     .ty-head h2{font-size:15px}
     .ty-scroll{padding:10px}
-    .wx-grid{grid-template-columns:1fr}
+    .wx-grid{gap:8px}                 /* 手機仍維持兩張並排 */
+    .wx-card{padding:10px 6px}
+    .wx-ico{font-size:28px}
+    .wx-desc{font-size:12px}
+    .hr-row{grid-template-columns:46px 24px 1fr auto auto;gap:6px;padding:8px 10px;font-size:12.5px}
+    .hr-d{font-size:11.5px}
     .ty-foot{font-size:11px;padding:10px 12px 12px}
   }
 
@@ -418,9 +481,36 @@
   <div class="tabs" role="tablist" aria-label="行程天數">
     <button class="tab" data-d="0" role="tab" aria-selected="true"><b>DAY 1</b><span>8/29 · 週六</span></button>
     <button class="tab" data-d="1" role="tab" aria-selected="false"><b>DAY 2</b><span>8/30 · 週日</span></button>
+    <button class="tab" data-d="2" role="tab" aria-selected="false"><b>住房指南</b><span>🔑 民宿設備</span></button>
   </div>
 
   <div id="days"></div>
+
+  <div class="day" data-day="2">
+    <div class="guide">
+      <div class="guide-hd">
+        <h2>🏠 住房指南</h2>
+        <p class="sub">哥德白色城堡的門鎖與設備操作說明，點下方按鈕看圖文步驟。</p>
+      </div>
+      <div class="gd-btns">
+        <button class="gd-btn" type="button" data-g="door">
+          <span class="gi">🚪</span>
+          <span class="gt"><b>大門電子鎖使用教學</b><small>自由進出、睡前上鎖、全員外出的開關方式</small></span>
+          <span class="ga">›</span>
+        </button>
+        <button class="gd-btn" type="button" data-g="room">
+          <span class="gi">🔑</span>
+          <span class="gt"><b>房間門鎖使用教學</b><small>房門上鎖與解鎖操作</small></span>
+          <span class="ga">›</span>
+        </button>
+        <button class="gd-btn" type="button" data-g="tv">
+          <span class="gi">📺</span>
+          <span class="gt"><b>大廳電視使用教學</b><small>電視開關與訊號源切換</small></span>
+          <span class="ga">›</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="calc">
     <h2>💰 費用試算</h2>
@@ -450,7 +540,7 @@
   </div>
 
   <button id="nowBtn" type="button" aria-label="跳到目前行程">📍 目前行程</button>
-  <button id="tyBtn" type="button" aria-label="查看各國颱風預報路徑"><span class="sw">🌀</span> 颱風動態</button>
+  <button id="tyBtn" type="button" aria-label="查看出遊兩天天氣預報"><span class="sw">🌤️</span> 天氣預報</button>
 
   <div class="outro"><span class="em">🎒</span>回程 · 準備迎接開學！</div>
   <div class="credit">為家庭出遊而做的互動行程表 · 點站名可開啟 Google 地圖導航</div>
@@ -460,16 +550,31 @@
 <div class="ty-mask" id="tyMask" role="dialog" aria-modal="true" aria-labelledby="tyTitle" aria-hidden="true">
   <div class="ty-box">
     <div class="ty-head">
-      <h2 id="tyTitle">🌀 颱風與出遊天氣</h2>
-      <button class="ty-x" id="tyX" type="button" aria-label="關閉颱風視窗">✕</button>
+      <h2 id="tyTitle">🌤️ 出遊兩天天氣</h2>
+      <button class="ty-x" id="tyX" type="button" aria-label="關閉天氣視窗">✕</button>
     </div>
     <div class="ty-scroll">
       <div class="wx" id="tyWx"></div>
-      <div class="ty-body" id="tyBody"></div>
+      <div id="tyHours"></div>
     </div>
     <div class="ty-foot">
-      颱風路徑：<a href="https://watch.ncdr.nat.gov.tw/watch_typhoon" target="_blank" rel="noopener">NCDR</a> · 天氣預報：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><br>
-      每 6 小時更新一次 · 影片可暫停與拖曳
+      天氣預報：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><br>
+      點上方任一天可看該日逐時預報 · 越接近出發越準
+    </div>
+  </div>
+</div>
+
+<div class="ty-mask" id="gdMask" role="dialog" aria-modal="true" aria-labelledby="gdTitle" aria-hidden="true">
+  <div class="ty-box">
+    <div class="ty-head">
+      <h2 id="gdTitle">🏠 住房指南</h2>
+      <button class="ty-x" id="gdX" type="button" aria-label="關閉住房指南視窗">✕</button>
+    </div>
+    <div class="ty-scroll">
+      <div id="gdBody"></div>
+    </div>
+    <div class="ty-foot">
+      民宿：宜蘭哥德白色城堡 · 操作若有疑問請聯繫民宿管家
     </div>
   </div>
 </div>
@@ -526,17 +631,23 @@ trip.forEach((stops,di)=>{
 const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 /* tabs */
+const TAB_HUE={'0':['#FF7A6B','#F0A02E','#FFD36B'],'1':['#189E9A','#5CA24B','#8C6BD6'],'2':['#8C6BD6','#FF7A6B','#FFD36B']};
+const GUIDE_TAB='2';                                   // 住房指南頁籤：不是行程日，要收掉費用試算
 const tabs=[...document.querySelectorAll('.tab')];
 function selectDay(di){
   di=String(di);
   tabs.forEach(x=>x.setAttribute('aria-selected',x.dataset.d===di));
   document.querySelectorAll('.day').forEach(dv=>dv.classList.toggle('on',dv.dataset.day===di));
+  const guide=di===GUIDE_TAB;
+  document.querySelector('.calc').style.display=guide?'none':'';
+  document.querySelector('.outro').style.display=guide?'none':'';
+  document.getElementById('nowBtn').style.display=guide?'none':'';
   revealVisible();
 }
 tabs.forEach(tb=>tb.addEventListener('click',()=>{
   const di=tb.dataset.d;selectDay(di);
   const r=tb.getBoundingClientRect();
-  burst(r.left+r.width/2,r.bottom, di==='0'?['#FF7A6B','#F0A02E','#FFD36B']:['#189E9A','#5CA24B','#8C6BD6']);
+  burst(r.left+r.width/2,r.bottom, TAB_HUE[di]||TAB_HUE['0']);
 }));
 
 /* scroll reveal */
@@ -691,106 +802,13 @@ document.getElementById('nowBtn').addEventListener('click',()=>gotoNow(true));
 gotoNow(false);
 setInterval(()=>markActive(currentStop()),60000); // 每分鐘更新標記
 
-/* ================= 各國颱風路徑動畫 · 蓋版視窗 ================= */
-/* 來源：NCDR 天氣與氣候監測網
-   影片：/00_Wxmap/0A3_TYPHOON_MP4/{YYYYMM}/{YYYYMMDD}_{HH}.mp4
-         每 6 小時發布一支（台灣時間 02/08/14/20），1382x720、約 36 秒、約 1MB
-   註1：NCDR 的清單 API（wh/jn_typhoon_mp4）沒有 CORS 標頭，跨站讀不到，
-        所以改用「依台灣時間推算最近時段、失敗就往前退 6 小時」的方式找最新一支。
-   註2：影片 moov 在 mdat 之後（非 faststart），必須整支載完才會播，故有載入中狀態。
-   註3：影片全部載不到時，退回同來源的靜態路徑圖（隨主題深／淺色），再不行才顯示連結。 */
-const TY_MP4='https://watch.ncdr.nat.gov.tw/00_Wxmap/0A3_TYPHOON_MP4/';
-const TY_PNG='https://watch.ncdr.nat.gov.tw/00_Wxmap/images/';
-const TY_PNG_IMG={dark:'track_map_1s.png',light:'track_map_2s.png'};
-const TY_SRC_PAGE='https://watch.ncdr.nat.gov.tw/watch_typhoon';
-const TY_BACK=8;                     // 最多往前回退 8 個時段（48 小時）
+/* ================= 天氣蓋版視窗 ================= */
 const tyMask=document.getElementById('tyMask');
-const tyBody=document.getElementById('tyBody');
 const tyBtn=document.getElementById('tyBtn');
 const tyX=document.getElementById('tyX');
-const tyDarkMQ=window.matchMedia('(prefers-color-scheme:dark)');
-let tyPrevFocus=null, tyVideo=null;
-
-// 主題判定：data-theme 覆蓋優先，否則跟系統
-function tyIsDark(){
-  const forced=document.documentElement.getAttribute('data-theme');
-  if(forced) return forced==='dark';
-  return tyDarkMQ.matches;
-}
-// 以台灣時間（UTC+8）取最近一個發布時段；用 UTC getter 讀，訪客在哪個時區都一樣
-function tyLatestSlot(){
-  const t=new Date(Date.now()+8*3600000);
-  const h=t.getUTCHours();
-  if(h<2){ t.setUTCDate(t.getUTCDate()-1); t.setUTCHours(20,0,0,0); }
-  else   { t.setUTCHours(Math.floor((h-2)/6)*6+2,0,0,0); }
-  return t;
-}
-function tySlotBack(t){ const p=new Date(t); p.setUTCHours(p.getUTCHours()-6); return p; }
+const tyHours=document.getElementById('tyHours');
+let tyPrevFocus=null;
 function tyPad(n){ return String(n).padStart(2,'0'); }
-function tySlotName(t){                       // 20260823_08
-  return t.getUTCFullYear()+tyPad(t.getUTCMonth()+1)+tyPad(t.getUTCDate())+'_'+tyPad(t.getUTCHours());
-}
-function tySlotUrl(t){                        // 每 10 分鐘換一次查詢字串：夠新，又不會每次開啟都重抓 1MB
-  const name=tySlotName(t);
-  return TY_MP4+name.substr(0,6)+'/'+name+'.mp4?tt='+Math.floor(Date.now()/600000);
-}
-function tySlotLabel(t){                      // 2026-08-23 08:00
-  return t.getUTCFullYear()+'-'+tyPad(t.getUTCMonth()+1)+'-'+tyPad(t.getUTCDate())+
-         ' '+tyPad(t.getUTCHours())+':00';
-}
-function tyMsg(html){ tyBody.innerHTML='<div class="ty-msg">'+html+'</div>'; }
-function tyLink(text){
-  return '<a href="'+TY_SRC_PAGE+'" target="_blank" rel="noopener">'+text+'</a>';
-}
-
-// 影片載不到時，退回靜態路徑圖（同一個資料來源，隨主題選深／淺色版）
-function tyLoadStill(){
-  const img=new Image();
-  img.alt='各國颱風預報路徑圖';
-  img.addEventListener('load',()=>{
-    tyBody.innerHTML='';
-    tyBody.appendChild(img);
-    const cap=document.createElement('div');
-    cap.className='ty-cap';
-    cap.innerHTML='⚠️ 取不到路徑動畫，改顯示最新靜態路徑圖 · '+tyLink('前往 NCDR');
-    tyBody.appendChild(cap);
-  },{once:true});
-  img.addEventListener('error',()=>{
-    tyMsg('<span class="em">📡</span>目前取不到颱風路徑資料。<br>可能是沒有網路連線，或來源網站暫時無法連線。<br>'+
-          tyLink('👉 直接前往 NCDR 查看'));
-  },{once:true});
-  img.src=TY_PNG+TY_PNG_IMG[tyIsDark()?'dark':'light']+'?t='+Date.now();
-}
-
-// 從最近時段開始試，404 就往前退 6 小時；NCDR 產製有延遲，所以一定要能回退
-function tyTryMp4(slot,left){
-  if(left<=0){ tyLoadStill(); return; }
-  const v=document.createElement('video');
-  v.muted=true; v.autoplay=true; v.loop=true; v.controls=true; v.preload='auto';
-  v.setAttribute('muted','');        // Safari 要屬性才肯自動播
-  v.setAttribute('playsinline','');
-  v.setAttribute('aria-label','各國颱風預報路徑動畫（'+tySlotLabel(slot)+'）');
-  v.addEventListener('canplay',()=>{
-    tyVideo=v;
-    tyBody.innerHTML='';
-    tyBody.appendChild(v);
-    const cap=document.createElement('div');
-    cap.className='ty-cap';
-    cap.textContent='資料時間 '+tySlotLabel(slot)+'（台灣時間）· 每 6 小時更新';
-    tyBody.appendChild(cap);
-    const p=v.play(); if(p&&p.catch) p.catch(()=>{});   // 自動播被擋就算了，有 controls 可手動播
-  },{once:true});
-  v.addEventListener('error',()=>{ tyTryMp4(tySlotBack(slot),left-1); },{once:true});
-  v.src=tySlotUrl(slot);
-  v.load();
-}
-
-function tyLoad(){
-  tyVideo=null;
-  tyMsg('<span class="em">🛰️</span>正在取得最新颱風路徑動畫…<br><small>影片約 1MB，需完整載入才會開始播放</small>');
-  tyTryMp4(tyLatestSlot(),TY_BACK);
-}
-
 
 /* ---------------- 出遊兩天天氣預報 ---------------- */
 /* 來源：Open-Meteo（免 API 金鑰、送 access-control-allow-origin: *，可跨站直接 fetch）
@@ -822,39 +840,105 @@ function wxDaysLeft(iso){                    // 以台灣時間算還有幾天�
   const p=iso.split('-');
   return Math.round((Date.UTC(+p[0],p[1]-1,+p[2])-today)/86400000);
 }
+// 台灣時間的「現在」，用 UTC getter 讀，訪客在哪個時區都一樣
+function wxNowTW(){ return new Date(Date.now()+8*3600000); }
+function wxTodayISO(){
+  const t=wxNowTW();
+  return t.getUTCFullYear()+'-'+tyPad(t.getUTCMonth()+1)+'-'+tyPad(t.getUTCDate());
+}
+// 每天的行程時段（由 startTimes 推算：第一站開始 ~ 最後一站 +2 小時），逐時表用來標色
+function wxTripHours(di){
+  const day=startTimes[di]; if(!day||!day.length) return null;
+  return [day[0][0], Math.min(23,day[day.length-1][0]+2)];
+}
+
+let wxData=null, wxPick=0;
+
 function wxRender(j){
   const d=j&&j.daily;
-  if(!d||!d.time||!d.time.length){ tyWx.innerHTML=''; return; }
+  if(!d||!d.time||!d.time.length){ tyWx.innerHTML=''; tyHours.innerHTML=''; return; }
+  wxData=j;
   let cards='';
   d.time.forEach((iso,i)=>{
     const w=WMO[d.weather_code[i]]||['🌡️','—'];
-    cards+='<div class="wx-card">'+
-      '<div class="wx-day">DAY '+(i+1)+' · '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）</div>'+
-      '<div class="wx-ico">'+w[0]+'</div>'+
-      '<div class="wx-desc">'+w[1]+'</div>'+
-      '<div class="wx-t"><b>'+Math.round(d.temperature_2m_max[i])+'°</b> <i>/ '+
-        Math.round(d.temperature_2m_min[i])+'°</i></div>'+
-      '<div class="wx-rain">☔ 降雨機率 '+d.precipitation_probability_max[i]+'%</div>'+
-    '</div>';
+    cards+='<button class="wx-card" type="button" role="tab" data-i="'+i+'" aria-selected="false">'+
+      '<span class="wx-day">DAY '+(i+1)+' · '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）</span>'+
+      '<span class="wx-ico">'+w[0]+'</span>'+
+      '<span class="wx-desc">'+w[1]+'</span>'+
+      '<span class="wx-t"><b>'+Math.round(d.temperature_2m_max[i])+'°</b> <i>/ '+
+        Math.round(d.temperature_2m_min[i])+'°</i></span>'+
+      '<span class="wx-rain">☔ 降雨機率 '+d.precipitation_probability_max[i]+'%</span>'+
+      '<span class="wx-pick">🕐 看逐時預報</span>'+
+    '</button>';
   });
   const left=wxDaysLeft(d.time[0]);
   const note=left>0
     ? '距出發還有 '+left+' 天 · 一週外的預報僅供參考，越接近出發越準'
     : '預報會隨時間修正，出發前建議再看一次';
   tyWx.innerHTML='<div class="wx-hd">🌤️ 出遊兩天天氣 · '+WX_PLACE+'</div>'+
-                 '<div class="wx-grid">'+cards+'</div>'+
+                 '<div class="wx-grid" role="tablist" aria-label="選擇日期看逐時預報">'+cards+'</div>'+
                  '<div class="wx-note">'+note+'</div>';
+  tyWx.querySelectorAll('.wx-card').forEach(b=>b.addEventListener('click',()=>{
+    wxShowHours(+b.dataset.i);
+    const r=b.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+16,['#F0A02E','#189E9A','#FFD36B']);
+  }));
+  // 預設選今天（出遊當天開頁就直接看今天），否則第一天
+  const today=wxTodayISO();
+  const idx=d.time.indexOf(today);
+  wxShowHours(idx>=0?idx:0);
 }
+
+// 逐時預報：只列出被選那一天的 24 小時
+function wxShowHours(i){
+  const d=wxData&&wxData.daily, h=wxData&&wxData.hourly;
+  if(!d||!h||!h.time){ tyHours.innerHTML=''; return; }
+  wxPick=i;
+  tyWx.querySelectorAll('.wx-card').forEach(b=>b.setAttribute('aria-selected',+b.dataset.i===i));
+
+  const iso=d.time[i];
+  const trip=wxTripHours(i);
+  const now=wxNowTW();
+  const nowISO=wxTodayISO(), nowH=now.getUTCHours();
+  let rows='';
+  h.time.forEach((t,k)=>{
+    if(t.substr(0,10)!==iso) return;
+    const hh=+t.substr(11,2);
+    const w=WMO[h.weather_code[k]]||['🌡️','—'];
+    const cls=(iso===nowISO&&hh===nowH)?' now':(trip&&hh>=trip[0]&&hh<=trip[1]?' trip':'');
+    rows+='<div class="hr-row'+cls+'">'+
+      '<span class="hr-t">'+tyPad(hh)+':00</span>'+
+      '<span class="hr-i">'+w[0]+'</span>'+
+      '<span class="hr-d">'+w[1]+'</span>'+
+      '<span class="hr-c">'+Math.round(h.temperature_2m[k])+'°</span>'+
+      '<span class="hr-p">☔'+h.precipitation_probability[k]+'%</span>'+
+    '</div>';
+  });
+  if(!rows){ tyHours.innerHTML=''; return; }
+  tyHours.innerHTML='<div class="hr">'+
+    '<div class="hr-hd">🕐 '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）逐時預報<small>溫度 · 降雨機率</small></div>'+
+    '<div class="hr-list">'+rows+'</div>'+
+    '<div class="hr-tip">綠底為當天行程時段'+(iso===nowISO?'，紅底為現在時間':'')+'</div>'+
+  '</div>';
+  // 捲到行程開始的時段，開啟就看得到重點
+  const first=tyHours.querySelector('.hr-row.now')||tyHours.querySelector('.hr-row.trip');
+  if(first) tyHours.querySelector('.hr-list').scrollTop=first.offsetTop-8;
+}
+
 function wxLoad(){
   if(wxDone) return;
   tyWx.innerHTML='<div class="wx-load">☁️ 正在取得天氣預報…</div>';
   const q=WX_API+'?latitude='+WX_LAT+'&longitude='+WX_LON+
     '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'+
+    '&hourly=weather_code,temperature_2m,precipitation_probability'+
     '&timezone=Asia%2FTaipei'+
     '&start_date='+wxISO(dayDates[0])+'&end_date='+wxISO(dayDates[dayDates.length-1]);
   fetch(q).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
     .then(j=>{ wxRender(j); wxDone=true; })
-    .catch(()=>{ tyWx.innerHTML=''; });      // 天氣抓不到就整塊收掉，不影響颱風影片
+    .catch(()=>{                              // 抓不到就給個提示，不要留空白視窗
+      tyWx.innerHTML='<div class="ty-msg">📡 目前取不到天氣預報。<br>可能是沒有網路連線，請稍後再開一次。</div>';
+      tyHours.innerHTML='';
+    });
 }
 
 function tyOpen(){
@@ -863,29 +947,82 @@ function tyOpen(){
   tyMask.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';   // 鎖背景捲動
   wxLoad();
-  tyLoad();
   tyX.focus();
 }
 function tyClose(){
-  if(tyVideo){ tyVideo.pause(); tyVideo.removeAttribute('src'); tyVideo.load(); }  // 停掉下載與播放
-  tyVideo=null;
   tyMask.classList.remove('on');
   tyMask.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
-  tyBody.innerHTML='';
   if(tyPrevFocus&&tyPrevFocus.focus) tyPrevFocus.focus();
 }
-function tyIsOpen(){ return tyMask.classList.contains('on'); }
 
 tyBtn.addEventListener('click',tyOpen);
 tyX.addEventListener('click',tyClose);
 tyMask.addEventListener('click',e=>{ if(e.target===tyMask) tyClose(); });   // 點遮罩關閉
 
+/* ================= 住房指南 · 蓋版視窗 ================= */
+const gdMask=document.getElementById('gdMask');
+const gdBody=document.getElementById('gdBody');
+const gdX=document.getElementById('gdX');
+const gdTitle=document.getElementById('gdTitle');
+let gdPrevFocus=null;
+
+const GUIDE={
+  door:{
+    title:'🚪 大門電子鎖使用教學',
+    html:
+      '<div class="gd-sec"><h3><span class="no">1</span>入住狀態說明</h3><dl>'+
+        '<dt>自由進出</dt><dd>入住期間大門已設定<em>解除密碼鎖</em>，平常進出不需要輸入密碼。</dd>'+
+        '<dt>無自動上鎖</dt><dd>此門鎖<em>不會自動關鎖</em>，需要人工手動操作。</dd>'+
+      '</dl></div>'+
+      '<div class="gd-sec"><h3><span class="no">2</span>晚上睡覺時（室內手動上鎖）</h3><dl>'+
+        '<dt>上鎖方式</dt><dd>人在室內時，將門內的<em>轉鈕手動轉過去</em>即可上鎖。</dd>'+
+        '<dt>解鎖方式</dt><dd>隔天早上直接<em>轉動手把推開門</em>即可解鎖進出。</dd>'+
+      '</dl></div>'+
+      '<div class="gd-sec"><h3><span class="no">3</span>全員外出時（室外電子上鎖與開鎖）</h3><dl>'+
+        '<dt>外出上鎖</dt><dd>全家／同行人皆出門且室內無人時，在室外<em>摸一下電子鎖面板</em>即可完成上鎖。</dd>'+
+        '<dt>返回開鎖</dt><dd>返回民宿時，碰一下面板點亮 ➔ 輸入入住密碼 ➔ 務必按下<span class="gd-key">＊</span>號鍵，即可開門進出。</dd>'+
+      '</dl></div>'
+  },
+  room:{ title:'🔑 房間門鎖使用教學', html:'' },
+  tv:{   title:'📺 大廳電視使用教學', html:'' }
+};
+const GD_SOON='<div class="gd-soon"><span class="em">🛠️</span>這項教學稍後補上，<br>敬請期待！</div>';
+
+function gdOpen(key){
+  const g=GUIDE[key]; if(!g) return;
+  gdPrevFocus=document.activeElement;
+  gdTitle.textContent=g.title;
+  gdBody.innerHTML=g.html||GD_SOON;
+  gdMask.classList.add('on');
+  gdMask.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  gdMask.querySelector('.ty-scroll').scrollTop=0;
+  gdX.focus();
+}
+function gdClose(){
+  gdMask.classList.remove('on');
+  gdMask.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  if(gdPrevFocus&&gdPrevFocus.focus) gdPrevFocus.focus();
+}
+document.querySelectorAll('.gd-btn').forEach(b=>b.addEventListener('click',()=>{
+  gdOpen(b.dataset.g);
+  const r=b.getBoundingClientRect();
+  burst(r.left+r.width/2,r.top+r.height/2,['#8C6BD6','#FF7A6B','#F0A02E']);
+}));
+gdX.addEventListener('click',gdClose);
+gdMask.addEventListener('click',e=>{ if(e.target===gdMask) gdClose(); });
+
+/* ---- 兩個蓋版視窗共用：Esc 關閉 + Tab focus trap ---- */
+const MASKS=[[tyMask,tyClose],[gdMask,gdClose]];
 document.addEventListener('keydown',e=>{
-  if(!tyIsOpen()) return;
-  if(e.key==='Escape'){ tyClose(); return; }
-  if(e.key==='Tab'){                                                        // focus trap
-    const f=tyMask.querySelectorAll('button,a[href],video[controls]');
+  const open=MASKS.find(m=>m[0].classList.contains('on'));
+  if(!open) return;
+  const [mask,close]=open;
+  if(e.key==='Escape'){ close(); return; }
+  if(e.key==='Tab'){
+    const f=mask.querySelectorAll('button,a[href]');
     if(!f.length) return;
     const first=f[0], last=f[f.length-1];
     if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
@@ -893,13 +1030,9 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// 只有在退回靜態圖時，主題才影響畫面；影片本身不分深淺色，不需要重載
-tyDarkMQ.addEventListener('change',()=>{
-  if(tyIsOpen()&&!tyVideo&&tyBody.querySelector('img')) tyLoadStill();
-});
-
-// 每次進入頁面都自動開啟一次
-setTimeout(tyOpen,900);
+/* 自動跳出天氣視窗：只到出發當天（8/29）台灣時間 10:00 為止，之後改用右下角按鈕自己開 */
+const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],2,0,0);  // 台灣 10:00 = UTC 02:00
+if(Date.now()<WX_AUTO_END) setTimeout(tyOpen,900);
 </script>
 </body>
 </html>
