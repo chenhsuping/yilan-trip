@@ -148,6 +148,7 @@
   .tab[data-d="0"][aria-selected="true"]{background:linear-gradient(120deg,var(--coral),var(--honey))}
   .tab[data-d="1"][aria-selected="true"]{background:linear-gradient(120deg,var(--teal),var(--leek))}
   .tab[data-d="2"][aria-selected="true"]{background:linear-gradient(120deg,var(--grape),var(--coral))}
+  .tab[data-d="3"][aria-selected="true"]{background:linear-gradient(120deg,var(--honey),var(--leek))}
   .tab:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
 
   /* ---------- TIMELINE ---------- */
@@ -338,7 +339,7 @@
   .hr-row{display:grid;grid-template-columns:50px 26px 1fr auto auto;align-items:center;gap:8px;
     padding:8px 13px;border-top:1px solid var(--line);font-size:13px}
   .hr-row:first-child{border-top:none}
-  .hr-row.trip{background:rgba(92,162,75,.10)}
+  .hr-row.trip{background:rgba(92,162,75,.18)}
   .hr-row.now{background:rgba(255,122,107,.18)}
   .hr-t{font-weight:900;font-variant-numeric:tabular-nums}
   .hr-i{font-size:18px;text-align:center;line-height:1}
@@ -371,6 +372,8 @@
   .gd-sec h3{margin:0 0 10px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
   .gd-sec h3 .no{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:0 0 auto;
     font-size:12.5px;color:#fff;background:linear-gradient(135deg,var(--grape),var(--coral))}
+  .gd-sec h3 .ni{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;flex:0 0 auto;
+    font-size:15px;background:var(--cream);border:1.5px solid var(--line)}
   .gd-sec dl{margin:0;display:flex;flex-direction:column;gap:9px}
   .gd-sec dt{font-weight:900;font-size:13.5px;color:var(--teal)}
   .gd-sec dd{margin:2px 0 0;font-size:14px;color:var(--ink);line-height:1.75}
@@ -388,6 +391,11 @@
   .gd-vid:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
   .gd-vid:active{transform:scale(.96)}
   .gd-vid:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  .gd-vid.nt-line{margin:5px 0 0;background:linear-gradient(120deg,var(--leek),var(--teal));font-size:14px}
+
+  /* 入住須知：獨立卡片、不用蓋版視窗 —— 內容短，直接看完最快 */
+  .nt{display:flex;flex-direction:column;gap:0}
+  .nt .gd-sec{box-shadow:var(--shadow-sm)}
   .gd-soon{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
   .gd-soon .em{display:block;font-size:34px;margin-bottom:8px}
   .ty-msg{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
@@ -436,8 +444,10 @@
   @media(max-width:560px){
     .wrap{padding:0 14px 64px}
     .hero{padding:48px 14px 128px}
-    .tabs{gap:8px;padding:12px 0}
-    .tab{min-width:0;flex:1 1 0;padding:11px 10px}
+    .tabs{gap:6px;padding:12px 0}
+    .tab{min-width:0;flex:1 1 0;padding:10px 5px}   /* 四個頁籤要塞得下 */
+    .tab b{font-size:13.5px}
+    .tab span{font-size:10px}
     .card{padding:15px 15px}
     h3.name{font-size:18px}
     .desc{font-size:14px}
@@ -449,6 +459,10 @@
   }
   /* Small phones */
   @media(max-width:380px){
+    .tabs{gap:5px}
+    .tab{padding:9px 3px}
+    .tab b{font-size:12.5px}
+    .tab span{font-size:9px}
     .stop{padding-left:50px}
     .node{width:34px;height:34px;font-size:15px}
     .rail{left:16px}
@@ -493,6 +507,7 @@
     <button class="tab" data-d="0" role="tab" aria-selected="true"><b>DAY 1</b><span>8/29 · 週六</span></button>
     <button class="tab" data-d="1" role="tab" aria-selected="false"><b>DAY 2</b><span>8/30 · 週日</span></button>
     <button class="tab" data-d="2" role="tab" aria-selected="false"><b>住房指南</b><span>🔑 民宿設備</span></button>
+    <button class="tab" data-d="3" role="tab" aria-selected="false"><b>入住須知</b><span>📋 生活提醒</span></button>
   </div>
 
   <div id="days"></div>
@@ -519,6 +534,59 @@
           <span class="gt"><b>大廳電視使用教學</b><small>遙控器、Netflix／YouTube、HDMI 切換</small></span>
           <span class="ga">›</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="day" data-day="3">
+    <div class="guide">
+      <div class="guide-hd">
+        <h2>📋 入住須知</h2>
+        <p class="sub">民宿的生活規範與提醒，入住前先看過一遍，住起來比較順。</p>
+      </div>
+      <div class="nt">
+        <div class="gd-sec">
+          <h3><span class="ni">🍳</span>早餐用餐時間</h3>
+          <dl>
+            <dt>早餐時間</dt><dd><em>09:00 – 10:20</em></dd>
+            <dt>收餐時間</dt><dd><em>10:30</em></dd>
+          </dl>
+        </div>
+        <div class="gd-sec">
+          <h3><span class="ni">⚡</span>避免跳電</h3>
+          <p>吹風機與熱水壺<em>請勿同時使用</em>，需分開時間操作。</p>
+        </div>
+        <div class="gd-sec">
+          <h3><span class="ni">🚿</span>熱水供應說明</h3>
+          <p>全天 <em>24 小時</em>皆有熱水供應。</p>
+          <dl>
+            <dt>加壓馬達運作時段</dt>
+            <dd><em>18:00 – 次日 03:00</em>／<em>08:00</em> 開始啟動（馬達運作時約 15 秒出熱水）。</dd>
+            <dt>無馬達運作時段（03:00 – 08:00）</dt>
+            <dd>仍有熱水，但冷水轉熱水需等待約 <em>4 分鐘</em>。建議於半夜 <em>03:00 前</em>洗澡。</dd>
+          </dl>
+        </div>
+        <div class="gd-sec">
+          <h3><span class="ni">🍽️</span>餐具與垃圾處理</h3>
+          <dl>
+            <dt>免洗／紙碗盤</dt><dd>乾的食物與紙碗盤<em>直接丟垃圾桶</em>，無需清洗。</dd>
+            <dt>湯類液體</dt><dd>請倒入<em>廚餘桶</em>，切勿倒進水槽以免堵塞。</dd>
+          </dl>
+        </div>
+        <div class="gd-sec">
+          <h3><span class="ni">🏡</span>環境與設備規範</h3>
+          <dl>
+            <dt>防蚊蟲</dt><dd>進出請<em>隨手關門</em>，防止壁虎及隱翅蟲進入。</dd>
+            <dt>戶外熄燈</dt><dd>戶外燈光於 <em>23:59</em> 自動熄燈，請於此時間前結束戶外活動。</dd>
+          </dl>
+        </div>
+        <div class="gd-sec">
+          <h3><span class="ni">💬</span>聯絡方式</h3>
+          <dl>
+            <dt>官方 LINE</dt>
+            <dd><a class="gd-vid nt-line" href="https://line.me/R/ti/p/@758gpivo" target="_blank" rel="noopener">💬 @758gpivo</a></dd>
+          </dl>
+        </div>
       </div>
     </div>
   </div>
@@ -642,17 +710,18 @@ trip.forEach((stops,di)=>{
 const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 /* tabs */
-const TAB_HUE={'0':['#FF7A6B','#F0A02E','#FFD36B'],'1':['#189E9A','#5CA24B','#8C6BD6'],'2':['#8C6BD6','#FF7A6B','#FFD36B']};
-const GUIDE_TAB='2';                                   // 住房指南頁籤：不是行程日，要收掉費用試算
+const TAB_HUE={'0':['#FF7A6B','#F0A02E','#FFD36B'],'1':['#189E9A','#5CA24B','#8C6BD6'],
+               '2':['#8C6BD6','#FF7A6B','#FFD36B'],'3':['#F0A02E','#5CA24B','#FFD36B']};
+const INFO_TABS=['2','3'];                             // 住房指南／入住須知：不是行程日，要收掉費用試算
 const tabs=[...document.querySelectorAll('.tab')];
 function selectDay(di){
   di=String(di);
   tabs.forEach(x=>x.setAttribute('aria-selected',x.dataset.d===di));
   document.querySelectorAll('.day').forEach(dv=>dv.classList.toggle('on',dv.dataset.day===di));
-  const guide=di===GUIDE_TAB;
-  document.querySelector('.calc').style.display=guide?'none':'';
-  document.querySelector('.outro').style.display=guide?'none':'';
-  document.getElementById('nowBtn').style.display=guide?'none':'';
+  const info=INFO_TABS.includes(di);
+  document.querySelector('.calc').style.display=info?'none':'';
+  document.querySelector('.outro').style.display=info?'none':'';
+  document.getElementById('nowBtn').style.display=info?'none':'';
   revealVisible();
 }
 tabs.forEach(tb=>tb.addEventListener('click',()=>{
