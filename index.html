@@ -924,20 +924,39 @@ function wxTripHours(di){
 
 let wxData=null, wxPick=0;
 
+/* 每日摘要要顯示哪個天氣 code
+   Open-Meteo 的 daily.weather_code 給的是「當日最嚴重」的那一個，一小時的極端值就會
+   綁架整天的門面 —— 實測 8/29 只有 17:00 是 96（雷雨夾冰雹）、全天雨量 6mm，卡片卻
+   整天掛著冰雹。改成從逐時推算：只採「至少出現 2 小時」的 code，孤例不算數，取其中
+   最嚴重的一個；真的沒有（資料缺漏）才退回 API 的每日值。 */
+function wxDayCode(j,iso,fallback){
+  const h=j&&j.hourly;
+  if(!h||!h.time||!h.weather_code) return fallback;
+  const cnt={};
+  h.time.forEach((t,k)=>{
+    if(t.substr(0,10)!==iso) return;
+    const c=h.weather_code[k];
+    if(c!=null) cnt[c]=(cnt[c]||0)+1;
+  });
+  const solid=Object.keys(cnt).filter(c=>cnt[c]>=2).map(Number);
+  return solid.length?Math.max.apply(null,solid):fallback;
+}
+
 function wxRender(j){
   const d=j&&j.daily;
   if(!d||!d.time||!d.time.length){ tyWx.innerHTML=''; tyHours.innerHTML=''; return; }
   wxData=j;
   let cards='';
   d.time.forEach((iso,i)=>{
-    const w=WMO[d.weather_code[i]]||['🌡️','—'];
+    const w=WMO[wxDayCode(j,iso,d.weather_code[i])]||['🌡️','—'];
     cards+='<button class="wx-card" type="button" role="tab" data-i="'+i+'" aria-selected="false">'+
       '<span class="wx-day">DAY '+(i+1)+' · '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）</span>'+
       '<span class="wx-ico">'+w[0]+'</span>'+
       '<span class="wx-desc">'+w[1]+'</span>'+
       '<span class="wx-t"><b>'+Math.round(d.temperature_2m_max[i])+'°</b> <i>/ '+
         Math.round(d.temperature_2m_min[i])+'°</i></span>'+
-      '<span class="wx-rain">☔ 降雨機率 '+d.precipitation_probability_max[i]+'%</span>'+
+      // precipitation_probability_max 是「當日單一小時的最高值」，不是整天下雨的機率，標題要講清楚
+      '<span class="wx-rain">☔ 最高降雨機率 '+d.precipitation_probability_max[i]+'%</span>'+
       '<span class="wx-pick">🕐 看逐時預報</span>'+
     '</button>';
   });
