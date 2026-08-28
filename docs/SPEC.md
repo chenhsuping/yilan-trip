@@ -26,6 +26,9 @@
 |------|------|
 | `index.html` | 全部內容（HTML + 內嵌 CSS + 內嵌 JS + 動畫），單一自包含檔案 |
 | `og-image.png` | 1200×630 社群分享封面圖 |
+| `apple-touch-icon.png` | 180×180 主畫面圖示（iOS「加入主畫面」用） |
+| `apple-touch-icon-512.png` | 512×512 同一張圖的大尺寸版（Android 與高解析裝置） |
+| `docs/apple-touch-icon.src.html` | 圖示的原始檔，用 headless Chrome 截圖輸出上面兩張 PNG |
 | `CNAME` | GitHub Pages 自訂網域綁定，內容為 `yilan.hsuping.org` |
 
 **技術約束**：不使用任何外部 CDN、字型、圖片或框架。所有樣式與腳本內嵌，可離線開啟，可放到任何靜態主機。中文字型採系統字型堆疊（PingFang TC / Microsoft JhengHei / Noto Sans TC…）。 **唯一例外**：4.9 的天氣預報向 Open-Meteo 取即時資料，此區塊在離線時會顯示替代訊息，其餘功能離線照常運作。
