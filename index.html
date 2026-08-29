@@ -231,17 +231,26 @@
     padding:22px 22px 26px;position:relative;overflow:hidden}
   .calc h2{margin:0 0 4px;font-size:22px;font-weight:900}
   .calc .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
-  .fam-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .calc-h{margin:24px 0 12px;font-size:15px;font-weight:900;color:var(--ink);
+    display:flex;align-items:center;gap:7px}
+  .calc-h span{font-weight:600;font-size:11.5px;color:var(--muted)}
+
+  .fam-list{display:flex;flex-direction:column;gap:8px}
   .fam-row{background:var(--cream);border-radius:16px;padding:11px 14px;
     display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .fam-row .fn{font-weight:800;font-size:14px}
+  .fam-row .fn{font-weight:800;font-size:14px;min-width:0}
   .fam-row .fn small{display:block;font-weight:600;color:var(--muted);font-size:11.5px;margin-top:2px}
-  .fam-row .fv{font-weight:900;font-variant-numeric:tabular-nums;color:var(--teal);font-size:14px;white-space:nowrap}
+  .fam-row .fv{font-weight:900;font-variant-numeric:tabular-nums;color:var(--teal);
+    font-size:15px;white-space:nowrap;text-align:right;flex:0 0 auto}
+  .fam-row .fv small{display:block;font-weight:700;color:var(--muted);font-size:11px;margin-top:3px}
 
-  .breakdown{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
-  .bd{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px}
-  .bd .d{color:var(--muted)}
-  .bd .v{font-weight:800;font-variant-numeric:tabular-nums}
+  .breakdown{display:flex;flex-direction:column;gap:11px}
+  .bd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14.5px}
+  .bd .d{color:var(--ink);min-width:0}
+  .bd .d small{display:block;font-weight:700;font-size:11px;margin-top:2px;color:var(--muted)}
+  .bd .d small.by-adult{color:var(--teal)}
+  .bd .d small.by-fam{color:var(--honey)}
+  .bd .v{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;flex:0 0 auto}
   .total{margin-top:6px;border-top:2px solid var(--ink);padding-top:14px;display:flex;
     justify-content:space-between;align-items:baseline}
   .total .d{font-weight:900;font-size:16px}
@@ -579,11 +588,15 @@
 
   <div class="calc">
     <h2>💰 費用試算</h2>
-    <div class="sub">依實際報名家庭與年齡計算，6 歲以下免票。</div>
-    <div class="fam-list" id="famList"></div>
+    <div class="sub">包棟與代烤由大人均分；門票各家自付，依實際年齡計算（6 歲以下免票）。</div>
+
+    <div class="calc-h">🗺️ 各項費用</div>
     <div class="breakdown" id="breakdown"></div>
     <div class="total"><span class="d">預估總計（不含餐飲）</span><span class="v" id="grand">—</span></div>
-    <div class="perhead"><span class="d">🧑 大人均分 · <b id="ppl">—</b> 位（兒童不分攤）</span><span class="pv" id="perhead">—</span></div>
+    <div class="perhead"><span class="d">🧑 均分項目 · <b id="ppl">—</b> 位大人平分（不含門票）</span><span class="pv" id="perhead">—</span></div>
+
+    <div class="calc-h">👨‍👩‍👧 各家應付 <span>均分 ＋ 自家門票</span></div>
+    <div class="fam-list" id="famList"></div>
     <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，萌萌森林兒童票適用 6–12 歲、6 歲以下暫比照免睡殿視為免票（建議出發前跟現場再確認一次），實際票價以現場公告為準。</div>
   </div>
 
@@ -741,34 +754,44 @@ function countTo(target){
 }
 function render(){
   const sleep=43200, bbq=17000;
-  let mianshui=0,forest=0,payAdults=0;
-  const famRows=ROSTER.map(f=>{
-    let fSub=0;
-    f.people.forEach(p=>{ const m=pMianshui(p),w=pForest(p); mianshui+=m; forest+=w; fSub+=m+w; if(pIsAdultPayer(p))payAdults++; });
-    const adultN=f.people.filter(p=>p.age===undefined).length;
-    const ages=f.people.filter(p=>p.age!==undefined).map(p=>p.age+'歲');
-    const label=`${f.fam} · ${adultN}大`+(ages.length?`＋${ages.join('、')}`:'');
-    return `<div class="fam-row"><span class="fn">${label}</span><span class="fv">${money(fSub)}</span></div>`;
-  });
-  document.getElementById('famList').innerHTML=famRows.join('');
-
+  const shared=sleep+bbq;                    // 包棟與代烤：整團共用，只由大人均分
   const ppl=ROSTER.reduce((n,f)=>n+f.people.length,0);
+  const payAdults=ROSTER.reduce((n,f)=>n+f.people.filter(pIsAdultPayer).length,0);
+  const perAdult=payAdults?Math.ceil(shared/payAdults):0;
+
+  // ── 1. 各項費用（景點層級）──
+  const mianshui=ROSTER.reduce((s,f)=>s+f.people.reduce((n,p)=>n+pMianshui(p),0),0);
+  const forest  =ROSTER.reduce((s,f)=>s+f.people.reduce((n,p)=>n+pForest(p),0),0);
   const mianshuiPayers=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)>0).length,0);
   const forestAdults=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===250).length,0);
-  const forestKids=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===150).length,0);
+  const forestKids  =ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===150).length,0);
   const rows=[
-    ['🏰 白色城堡包棟',sleep],
-    ['🍖 代烤燒肉（約）',bbq],
-    [`🤸 免睡殿 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
-    [`🦙 萌萌森林 · 大人 ${forestAdults}×250 + 兒童 ${forestKids}×150`,forest]
+    ['🏰 白色城堡包棟','adult','大人均分',sleep],
+    ['🍖 代烤燒肉（約）','adult','大人均分',bbq],
+    ['🤸 宜蘭免睡殿','fam',`各家自付 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
+    ['🦙 萌萌森林物語','fam',`各家自付 · 大人 ${forestAdults}×250 ＋ 兒童 ${forestKids}×150`,forest]
   ];
-  document.getElementById('breakdown').innerHTML=
-    rows.map(r=>`<div class="bd"><span class="d">${r[0]}</span><span class="v">${money(r[1])}</span></div>`).join('');
-  const total=sleep+bbq+mianshui+forest;
+  document.getElementById('breakdown').innerHTML=rows.map(r=>
+    `<div class="bd"><span class="d">${r[0]}<small class="by-${r[1]}">${r[2]}</small></span>`+
+    `<span class="v">${money(r[3])}</span></div>`).join('');
+
+  const total=shared+mianshui+forest;
   countTo(total);
-  // 費用全額（含兒童門票）只由大人均分
   document.getElementById('ppl').textContent=payAdults;
-  document.getElementById('perhead').textContent=payAdults?money(Math.ceil(total/payAdults)):'—';
+  document.getElementById('perhead').textContent=payAdults?money(perAdult):'—';
+
+  // ── 2. 各家應付：自家門票 ＋ 該家大人數 × 均分額 ──
+  document.getElementById('famList').innerHTML=ROSTER.map(f=>{
+    const tickets=f.people.reduce((n,p)=>n+pMianshui(p)+pForest(p),0);
+    const adultN=f.people.filter(pIsAdultPayer).length;
+    const share=adultN*perAdult;
+    const ages=f.people.filter(p=>p.age!==undefined).map(p=>p.age+'歲');
+    const compo=`${adultN}大`+(ages.length?`＋${ages.join('、')}`:'');
+    return `<div class="fam-row">`+
+      `<span class="fn">${f.fam}<small>${compo}</small></span>`+
+      `<span class="fv">${money(share+tickets)}`+
+      `<small>均分 ${money(share)} ＋ 門票 ${money(tickets)}</small></span></div>`;
+  }).join('');
 }
 render();
 
