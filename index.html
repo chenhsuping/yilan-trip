@@ -591,7 +591,7 @@
 
   <div class="calc">
     <h2>💰 費用試算</h2>
-    <div class="sub">包棟與代烤由大人均分；門票各家自付，依實際年齡計算（6 歲以下免票）。</div>
+    <div class="sub">包棟與代烤由大人均分；門票統一付款，各家依人數與年齡分攤（6 歲以下免票）。</div>
 
     <div class="calc-h">🗺️ 各項費用</div>
     <div class="breakdown" id="breakdown"></div>
@@ -760,10 +760,8 @@ function countTo(target){
 }
 function render(){
   const sleep=43200, bbq=17000;
-  const shared=sleep+bbq;                    // 包棟與代烤：整團共用，只由大人均分
   const ppl=ROSTER.reduce((n,f)=>n+f.people.length,0);
   const payAdults=ROSTER.reduce((n,f)=>n+f.people.filter(pIsAdultPayer).length,0);
-  const perAdult=payAdults?Math.ceil(shared/payAdults):0;
 
   // ── 1. 各項費用（景點層級）──
   const mianshui=ROSTER.reduce((s,f)=>s+f.people.reduce((n,p)=>n+pMianshui(p),0),0);
@@ -771,11 +769,17 @@ function render(){
   const mianshuiPayers=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)>0).length,0);
   const forestAdults=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===250).length,0);
   const forestKids  =ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===150).length,0);
+
+  // 包棟與代烤：整團共用的固定成本 → 大人均分。
+  // 兩個景點門票在現場是統一付款（一次結清），但金額仍按各家自己的人數與年齡分攤。
+  const shared=sleep+bbq;
+  const perAdult=payAdults?Math.ceil(shared/payAdults):0;
+
   const rows=[
     ['🏰 白色城堡包棟','adult','大人均分',sleep],
     ['🍖 代烤燒肉（約）','adult','大人均分',bbq],
-    ['🤸 宜蘭免睡殿','fam',`各家自付 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
-    ['🦙 萌萌森林物語','fam',`各家自付 · 大人 ${forestAdults}×250 ＋ 兒童 ${forestKids}×150`,forest]
+    ['🤸 宜蘭免睡殿','fam',`統一付款 · 各家依人數分攤 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
+    ['🦙 萌萌森林物語','fam',`統一付款 · 各家依人數分攤 · 大人 ${forestAdults}×250 ＋ 兒童 ${forestKids}×150`,forest]
   ];
   document.getElementById('breakdown').innerHTML=rows.map(r=>
     `<div class="bd"><span class="d">${r[0]}<small class="by-${r[1]}">${r[2]}</small></span>`+
