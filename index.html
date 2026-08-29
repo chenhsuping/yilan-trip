@@ -840,7 +840,10 @@ function schedule(){
 function currentStop(){
   const now=new Date(),flat=schedule(),first=flat[0],last=flat[flat.length-1];
   if(now<first.t){
-    const days=Math.ceil((first.t-now)/DAY_MS);
+    // 用「日曆日」差距而非時間差 —— 差幾小時就 Math.ceil 進位到 1 天，
+    // 會讓「今天稍晚出發」誤判成「還有 1 天」。改成比較兩邊午夜時間點的日數差。
+    const midnight=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    const days=Math.round((midnight(first.t)-midnight(now))/DAY_MS);
     return {...first,status:'upcoming',days};
   }
   if(now>=new Date(last.t.getTime()+3*3600*1000)) return {...last,status:'ended'};
@@ -850,7 +853,8 @@ function currentStop(){
 function badgeText(c){
   if(c.status==='current') return '🔴 進行中';
   if(c.status==='ended')   return '✅ 行程結束';
-  return c.days>0 ? `⏰ 還有 ${c.days} 天出發` : '⏰ 即將出發';
+  if(c.days>0) return `⏰ 還有 ${c.days} 天出發`;
+  return '⏰ 今天出發';   // days===0：同一天但還沒到第一站時間
 }
 function markActive(c){
   document.querySelectorAll('.stop.active-now').forEach(s=>s.classList.remove('active-now'));
