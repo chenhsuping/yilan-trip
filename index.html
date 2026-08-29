@@ -1173,7 +1173,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* 自動跳出天氣視窗：只到出發當天（8/29）台灣時間 10:00 為止，之後改用右下角按鈕自己開 */
-const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],2,0,0);  // 台灣 10:00 = UTC 02:00
+const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],1,30,0);  // 台灣 09:30 = UTC 01:30
 if(Date.now()<WX_AUTO_END) setTimeout(tyOpen,900);
 </script>
 </body>
