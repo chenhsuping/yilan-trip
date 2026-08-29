@@ -231,18 +231,12 @@
     padding:22px 22px 26px;position:relative;overflow:hidden}
   .calc h2{margin:0 0 4px;font-size:22px;font-weight:900}
   .calc .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
-  .steppers{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-  .stepper{flex:1;min-width:150px;background:var(--cream);border-radius:16px;padding:12px 14px;
-    display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .stepper .lbl{font-weight:800;font-size:14px}
-  .stepper .lbl small{display:block;font-weight:600;color:var(--muted);font-size:11px}
-  .ctrl{display:flex;align-items:center;gap:10px}
-  .ctrl button{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
-    font-size:20px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--teal),var(--leek));
-    line-height:1;box-shadow:var(--shadow-sm);transition:.15s}
-  .ctrl button:active{transform:scale(.9)}
-  .ctrl button:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
-  .ctrl .num{min-width:26px;text-align:center;font-weight:900;font-size:20px;font-variant-numeric:tabular-nums}
+  .fam-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .fam-row{background:var(--cream);border-radius:16px;padding:11px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .fam-row .fn{font-weight:800;font-size:14px}
+  .fam-row .fn small{display:block;font-weight:600;color:var(--muted);font-size:11.5px;margin-top:2px}
+  .fam-row .fv{font-weight:900;font-variant-numeric:tabular-nums;color:var(--teal);font-size:14px;white-space:nowrap}
 
   .breakdown{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
   .bd{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px}
@@ -437,7 +431,6 @@
   @media(min-width:900px){
     .hero{padding:80px 20px 170px}
     .wrap{max-width:860px}
-    .stepper{min-width:0}
   }
   /* Tablet & below */
   @media(max-width:720px){
@@ -457,8 +450,7 @@
     .desc{font-size:14px}
     .cuisine{float:none;display:inline-block;margin-top:8px}
     .calc{padding:18px 16px 22px}
-    .steppers{gap:10px}
-    .stepper{flex:1 1 100%;min-width:0}
+    .fam-row{flex-wrap:wrap}
     .total .v{font-size:26px}
   }
   /* Small phones */
@@ -587,29 +579,12 @@
 
   <div class="calc">
     <h2>💰 費用試算</h2>
-    <div class="sub">固定包棟與代烤費用不變，門票依人數即時計算。</div>
-    <div class="steppers">
-      <div class="stepper">
-        <div class="lbl">大人 🧑<small>免睡殿 + 萌萌森林全票</small></div>
-        <div class="ctrl">
-          <button type="button" data-t="adult" data-op="-1" aria-label="減少大人">−</button>
-          <span class="num" id="n-adult">10</span>
-          <button type="button" data-t="adult" data-op="1" aria-label="增加大人">+</button>
-        </div>
-      </div>
-      <div class="stepper">
-        <div class="lbl">兒童 🧒<small>免睡殿 + 萌萌森林兒童票</small></div>
-        <div class="ctrl">
-          <button type="button" data-t="child" data-op="-1" aria-label="減少兒童">−</button>
-          <span class="num" id="n-child">5</span>
-          <button type="button" data-t="child" data-op="1" aria-label="增加兒童">+</button>
-        </div>
-      </div>
-    </div>
+    <div class="sub">依實際報名家庭與年齡計算，6 歲以下免票。</div>
+    <div class="fam-list" id="famList"></div>
     <div class="breakdown" id="breakdown"></div>
     <div class="total"><span class="d">預估總計（不含餐飲）</span><span class="v" id="grand">—</span></div>
     <div class="perhead"><span class="d">🧑 大人均分 · <b id="ppl">—</b> 位（兒童不分攤）</span><span class="pv" id="perhead">—</span></div>
-    <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，兒童票適用 6–12 歲，實際票價以現場公告為準。</div>
+    <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，萌萌森林兒童票適用 6–12 歲、6 歲以下暫比照免睡殿視為免票（建議出發前跟現場再確認一次），實際票價以現場公告為準。</div>
   </div>
 
   <button id="nowBtn" type="button" aria-label="跳到目前行程">📍 目前行程</button>
@@ -731,8 +706,27 @@ const io=new IntersectionObserver(es=>{
 function revealVisible(){document.querySelectorAll('.day.on .card:not(.reveal)').forEach(c=>io.observe(c));}
 revealVisible();
 
-/* calculator */
-const st={adult:10,child:5};
+/* calculator — 實際報名名單。人沒有 age 欄位就當一般付費大人（非長者）。
+   要調整參加人數／年齡，改這裡就好，下面全部會自動重算。 */
+const ROSTER=[
+ {fam:'雅茹一家',people:[{},{},{age:11},{age:7}]},
+ {fam:'毛一家',  people:[{},{},{age:9}]},
+ {fam:'小龜一家',people:[{},{},{age:5}]},
+ {fam:'大餅一家',people:[{},{},{age:3}]},
+ {fam:'康永夫妻',people:[{},{}]}
+];
+// 免睡殿：每人 150，6 歲以下／75 歲以上免費
+function pMianshui(p){ return (p.age!==undefined&&(p.age<6||p.age>=75)) ? 0 : 150; }
+// 萌萌森林：大人／6–12 歲兒童票有公告價；6 歲以下未公告，暫比照免睡殿的規則視為免票（見計算機下方附註）
+function pForest(p){
+  if(p.age===undefined) return 250;
+  if(p.age<6) return 0;
+  if(p.age<=12) return 150;
+  return 250;
+}
+// 均分規則只算「大人」：沒填年齡，或年齡超過兒童票上限（12 歲）
+function pIsAdultPayer(p){ return p.age===undefined||p.age>12; }
+
 const money=n=>'NT$'+Math.round(n).toLocaleString('en-US');
 const grandEl=document.getElementById('grand');
 let shown=0,raf=0;
@@ -746,30 +740,36 @@ function countTo(target){
   grandEl.classList.remove('bump');void grandEl.offsetWidth;grandEl.classList.add('bump');
 }
 function render(){
-  document.getElementById('n-adult').textContent=st.adult;
-  document.getElementById('n-child').textContent=st.child;
-  const ppl=st.adult+st.child;
   const sleep=43200, bbq=17000;
-  const mianshui=ppl*150;                     // 免睡殿：不分大小人 NT$150（免費族群請自行扣除）
-  const forest=st.adult*250+st.child*150;     // 萌萌森林物語
+  let mianshui=0,forest=0,payAdults=0;
+  const famRows=ROSTER.map(f=>{
+    let fSub=0;
+    f.people.forEach(p=>{ const m=pMianshui(p),w=pForest(p); mianshui+=m; forest+=w; fSub+=m+w; if(pIsAdultPayer(p))payAdults++; });
+    const adultN=f.people.filter(p=>p.age===undefined).length;
+    const ages=f.people.filter(p=>p.age!==undefined).map(p=>p.age+'歲');
+    const label=`${f.fam} · ${adultN}大`+(ages.length?`＋${ages.join('、')}`:'');
+    return `<div class="fam-row"><span class="fn">${label}</span><span class="fv">${money(fSub)}</span></div>`;
+  });
+  document.getElementById('famList').innerHTML=famRows.join('');
+
+  const ppl=ROSTER.reduce((n,f)=>n+f.people.length,0);
+  const mianshuiPayers=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)>0).length,0);
+  const forestAdults=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===250).length,0);
+  const forestKids=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===150).length,0);
   const rows=[
     ['🏰 白色城堡包棟',sleep],
     ['🍖 代烤燒肉（約）',bbq],
-    [`🤸 免睡殿 · ${ppl} 人 × 150`,mianshui],
-    [`🦙 萌萌森林 · 大人 ${st.adult}×250 + 兒童 ${st.child}×150`,forest]
+    [`🤸 免睡殿 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
+    [`🦙 萌萌森林 · 大人 ${forestAdults}×250 + 兒童 ${forestKids}×150`,forest]
   ];
   document.getElementById('breakdown').innerHTML=
     rows.map(r=>`<div class="bd"><span class="d">${r[0]}</span><span class="v">${money(r[1])}</span></div>`).join('');
   const total=sleep+bbq+mianshui+forest;
   countTo(total);
   // 費用全額（含兒童門票）只由大人均分
-  document.getElementById('ppl').textContent=st.adult;
-  document.getElementById('perhead').textContent=st.adult?money(Math.ceil(total/st.adult)):'—';
+  document.getElementById('ppl').textContent=payAdults;
+  document.getElementById('perhead').textContent=payAdults?money(Math.ceil(total/payAdults)):'—';
 }
-document.querySelectorAll('.ctrl button').forEach(b=>b.addEventListener('click',e=>{
-  const t=b.dataset.t;st[t]=Math.max(0,st[t]+ +b.dataset.op);render();
-  const r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top,['#F0A02E','#FF7A6B','#5CA24B']);
-}));
 render();
 
 /* ---------- confetti (fx canvas) ---------- */
