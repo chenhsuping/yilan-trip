@@ -982,7 +982,9 @@ function wxRender(j){
   wxShowHours(idx>=0?idx:0);
 }
 
-// 逐時預報：只列出被選那一天的 24 小時
+// 逐時預報：列出被選那一天的逐時資料。
+// 若選的就是今天，已經過去的時段直接不列 —— 行程進行中時，往回看幾點下過雨沒有意義，
+// 清單也不必再捲。未來的日子仍列滿 24 小時；已經過去的日子維持完整列出，不會變成空白。
 function wxShowHours(i){
   const d=wxData&&wxData.daily, h=wxData&&wxData.hourly;
   if(!d||!h||!h.time){ tyHours.innerHTML=''; return; }
@@ -993,12 +995,14 @@ function wxShowHours(i){
   const trip=wxTripHours(i);
   const now=wxNowTW();
   const nowISO=wxTodayISO(), nowH=now.getUTCHours();
+  const isToday=(iso===nowISO);
   let rows='';
   h.time.forEach((t,k)=>{
     if(t.substr(0,10)!==iso) return;
     const hh=+t.substr(11,2);
+    if(isToday&&hh<nowH) return;                 // 今天：已經過去的時段不列
     const w=WMO[h.weather_code[k]]||['🌡️','—'];
-    const cls=(iso===nowISO&&hh===nowH)?' now':(trip&&hh>=trip[0]&&hh<=trip[1]?' trip':'');
+    const cls=(isToday&&hh===nowH)?' now':(trip&&hh>=trip[0]&&hh<=trip[1]?' trip':'');
     rows+='<div class="hr-row'+cls+'">'+
       '<span class="hr-t">'+tyPad(hh)+':00</span>'+
       '<span class="hr-i">'+w[0]+'</span>'+
@@ -1008,10 +1012,15 @@ function wxShowHours(i){
     '</div>';
   });
   if(!rows){ tyHours.innerHTML=''; return; }
+  const hd='🕐 '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）'+
+           (isToday?'接下來的天氣':'逐時預報');
+  const tip=isToday
+    ? '只列出現在之後的時段 · 紅底為現在這個小時，綠底為行程時段'
+    : '綠底為當天行程時段';
   tyHours.innerHTML='<div class="hr">'+
-    '<div class="hr-hd">🕐 '+(+iso.substr(5,2))+'/'+(+iso.substr(8,2))+'（'+wxWeekday(iso)+'）逐時預報<small>溫度 · 降雨機率</small></div>'+
+    '<div class="hr-hd">'+hd+'<small>溫度 · 降雨機率</small></div>'+
     '<div class="hr-list">'+rows+'</div>'+
-    '<div class="hr-tip">綠底為當天行程時段'+(iso===nowISO?'，紅底為現在時間':'')+'</div>'+
+    '<div class="hr-tip">'+tip+'</div>'+
   '</div>';
   // 捲到行程開始的時段，開啟就看得到重點
   const first=tyHours.querySelector('.hr-row.now')||tyHours.querySelector('.hr-row.trip');
