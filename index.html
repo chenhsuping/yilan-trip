@@ -273,26 +273,27 @@
     background:linear-gradient(120deg,var(--coral),var(--honey));padding:3px 11px;border-radius:100px;
     margin-bottom:7px;box-shadow:var(--shadow-sm);animation:blink 1.5s ease-in-out infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
-  #nowBtn{position:fixed;right:18px;bottom:18px;z-index:50;border:none;cursor:pointer;font-family:inherit;
+  /* 浮動按鈕堆疊。用 flex column-reverse 而非各自 position:fixed —— 隱藏其中一顆時
+     其餘會自動遞補，不會在原位留下一個洞（切到住房指南／入住須知時會隱藏兩顆）。
+     DOM 順序由下往上：目前行程 → 天氣預報 → 費用試算。 */
+  .fabs{position:fixed;right:18px;bottom:18px;z-index:50;pointer-events:none;
+    display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px}
+  .fab{pointer-events:auto;border:none;cursor:pointer;font-family:inherit;
     font-weight:900;font-size:14px;color:#fff;padding:13px 18px;border-radius:100px;
-    background:linear-gradient(120deg,var(--coral),var(--honey));box-shadow:var(--shadow);
-    transition:transform .15s,box-shadow .2s}
-  #nowBtn:hover{transform:translateY(-2px)}
-  #nowBtn:active{transform:scale(.94)}
-  #nowBtn:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
-  @media(max-width:560px){#nowBtn{right:12px;bottom:12px;padding:12px 15px;font-size:13px}}
-
-  /* ---------- WEATHER ---------- */
-  #tyBtn{position:fixed;right:18px;bottom:76px;z-index:50;border:none;cursor:pointer;font-family:inherit;
-    font-weight:900;font-size:14px;color:#fff;padding:13px 18px;border-radius:100px;
-    background:linear-gradient(120deg,var(--teal),var(--grape));box-shadow:var(--shadow);
-    transition:transform .15s,box-shadow .2s}
-  #tyBtn:hover{transform:translateY(-2px)}
-  #tyBtn:active{transform:scale(.94)}
-  #tyBtn:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
+    box-shadow:var(--shadow);transition:transform .15s,box-shadow .2s;white-space:nowrap}
+  .fab:hover{transform:translateY(-2px)}
+  .fab:active{transform:scale(.94)}
+  .fab:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+  #nowBtn{background:linear-gradient(120deg,var(--coral),var(--honey))}
+  #tyBtn{background:linear-gradient(120deg,var(--teal),var(--grape))}
+  #tyBtn:focus-visible{outline-color:var(--honey)}
+  #calcBtn{background:linear-gradient(120deg,var(--honey),var(--leek))}
   #tyBtn .sw{display:inline-block;animation:swirl 3.6s ease-in-out infinite}
   @keyframes swirl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(6deg)}}
-  @media(max-width:560px){#tyBtn{right:12px;bottom:66px;padding:12px 15px;font-size:13px}}
+  @media(max-width:560px){
+    .fabs{right:12px;bottom:12px;gap:8px}
+    .fab{padding:12px 15px;font-size:13px}
+  }
 
   .ty-mask{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
     padding:16px;background:rgba(40,24,18,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -600,8 +601,11 @@
     <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，萌萌森林兒童票適用 6–12 歲、6 歲以下暫比照免睡殿視為免票（建議出發前跟現場再確認一次），實際票價以現場公告為準。</div>
   </div>
 
-  <button id="nowBtn" type="button" aria-label="跳到目前行程">📍 目前行程</button>
-  <button id="tyBtn" type="button" aria-label="查看出遊兩天天氣預報"><span class="sw">🌤️</span> 天氣預報</button>
+  <div class="fabs">
+    <button id="nowBtn" class="fab" type="button" aria-label="跳到目前行程">📍 目前行程</button>
+    <button id="tyBtn" class="fab" type="button" aria-label="查看出遊兩天天氣預報"><span class="sw">🌤️</span> 天氣預報</button>
+    <button id="calcBtn" class="fab" type="button" aria-label="跳到費用試算">💰 費用試算</button>
+  </div>
 
   <div class="outro"><span class="em">🎒</span>回程 · 準備迎接開學！</div>
   <div class="credit">為家庭出遊而做的互動行程表 · 點站名可開啟 Google 地圖導航</div>
@@ -900,6 +904,16 @@ function gotoNow(force){
   }
 }
 document.getElementById('nowBtn').addEventListener('click',()=>gotoNow(true));
+
+/* 💰 費用試算：捲到計算機。費用試算只掛在行程日分頁下，若正停在住房指南／入住須知
+   就先切回 DAY 1，否則按了會沒反應。捲動時預留 90px 給置頂的分頁列。 */
+document.getElementById('calcBtn').addEventListener('click',()=>{
+  const cur=document.querySelector('.tab[aria-selected="true"]');
+  if(cur&&INFO_TABS.includes(cur.dataset.d)) selectDay(0);
+  const calc=document.querySelector('.calc');
+  const top=calc.getBoundingClientRect().top+window.scrollY-90;
+  window.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
+});
 gotoNow(false);
 setInterval(()=>markActive(currentStop()),60000); // 每分鐘更新標記
 
