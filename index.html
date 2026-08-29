@@ -856,17 +856,40 @@ const startTimes=[
   [[11,0],[11,30],[12,30],[14,20]]   // DAY 2
 ];
 const DAY_MS=86400000;
+const LEAD_MS=30*60000;      // 當前這站「結束前 30 分鐘」就跳到下一站，好有時間收拾移動
+const MIN_SHOW_MS=10*60000;  // 每站至少保有 10 分鐘「進行中」，短行程才不會被瞬間跳過
+// 從 trip 的 time 字串取結束時間："11:30–13:00" → [13,0]；"15:00 起"、"11:00" 沒有結束時間 → null
+function endHM(s){
+  const m=String(s).match(/[–—-]\s*(\d{1,2}):(\d{2})/);
+  return m?[+m[1],+m[2]]:null;
+}
 function schedule(){
   const flat=[];
   startTimes.forEach((day,di)=>day.forEach((hm,si)=>{
     const [Y,M,D]=dayDates[di];
-    flat.push({di,si,t:new Date(Y,M,D,hm[0],hm[1],0)});
+    const e=endHM(trip[di][si].time);
+    flat.push({di,si,
+      t:new Date(Y,M,D,hm[0],hm[1],0),
+      end:e?new Date(Y,M,D,e[0],e[1],0):null});
   }));
-  return flat.sort((a,b)=>a.t-b.t);
+  flat.sort((a,b)=>a.t-b.t);
+  flat.forEach((f,i)=>{
+    if(i===0){ f.at=new Date(f.t.getTime()-LEAD_MS); return; }
+    const prev=flat[i-1];
+    // 這一站生效 = 前一站結束前 30 分鐘。前一站是「15:00 起」這種沒有結束時間的，
+    // 就退回用自己的開始時間往前推 30 分鐘。
+    let at=(prev.end?prev.end.getTime():f.t.getTime())-LEAD_MS;
+    // 前一站至少要有 10 分鐘的「進行中」—— 奕順軒 11:30–12:00 只有 30 分鐘，
+    // 結束前 30 分鐘正好等於它的開始時間，不擋的話它會在生效當下就被跳過。
+    at=Math.max(at,prev.t.getTime()+MIN_SHOW_MS);
+    at=Math.min(at,f.t.getTime());          // 也不會晚於自己的表定開始時間
+    f.at=new Date(at);
+  });
+  return flat;
 }
 function currentStop(){
   const now=new Date(),flat=schedule(),first=flat[0],last=flat[flat.length-1];
-  if(now<first.t){
+  if(now<first.at){
     // 用「日曆日」差距而非時間差 —— 差幾小時就 Math.ceil 進位到 1 天，
     // 會讓「今天稍晚出發」誤判成「還有 1 天」。改成比較兩邊午夜時間點的日數差。
     const midnight=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
@@ -874,11 +897,13 @@ function currentStop(){
     return {...first,status:'upcoming',days};
   }
   if(now>=new Date(last.t.getTime()+3*3600*1000)) return {...last,status:'ended'};
-  let active=first;for(const f of flat){if(f.t<=now)active=f;}
-  return {...active,status:'current'};
+  let active=first;for(const f of flat){if(f.at<=now)active=f;}
+  // 已經跳過來、但還沒到表定時間 → 提前量的那段區間
+  return {...active,status: now<active.t ? 'soon' : 'current'};
 }
 function badgeText(c){
   if(c.status==='current') return '🔴 進行中';
+  if(c.status==='soon')    return '⏳ 即將前往';   // 已提前跳過來，還沒到表定時間
   if(c.status==='ended')   return '✅ 行程結束';
   if(c.days>0) return `⏰ 還有 ${c.days} 天出發`;
   return '⏰ 今天出發';   // days===0：同一天但還沒到第一站時間
@@ -898,7 +923,7 @@ function gotoNow(force){
   const c=currentStop();
   selectDay(c.di);
   const el=markActive(c);
-  if((force||c.status==='current')&&el){
+  if((force||c.status==='current'||c.status==='soon')&&el){
     el.querySelector('.card').classList.add('reveal');
     setTimeout(()=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}),120);
   }
