@@ -392,6 +392,8 @@
     border-top:1.5px dashed var(--line)}
   .gd-key{display:inline-block;font-weight:900;color:#fff;background:var(--coral);
     padding:1px 9px;border-radius:8px;margin:0 2px}
+  .gd-key.gd-pw{font-size:18px;letter-spacing:.24em;padding:4px 10px 4px 14px;
+    font-variant-numeric:tabular-nums;background:linear-gradient(120deg,var(--coral),var(--honey))}
   .gd-vid{display:inline-flex;align-items:center;gap:7px;margin:0 0 14px;font-size:13px;font-weight:900;
     color:#fff;text-decoration:none;padding:9px 16px;border-radius:100px;
     background:linear-gradient(120deg,var(--coral),var(--honey));box-shadow:var(--shadow-sm);
@@ -1159,7 +1161,7 @@ const GUIDE={
     html:
       '<div class="gd-sec"><h3><span class="no">1</span>開鎖步驟</h3><dl>'+
         '<dt>喚醒面板</dt><dd>手掌<em>輕碰一下電子鎖面板</em>點亮螢幕。</dd>'+
-        '<dt>輸入密碼</dt><dd>輸入入住當天告知的<em>房間密碼</em>。</dd>'+
+        '<dt>輸入密碼</dt><dd>房間密碼 <span class="gd-key gd-pw">000468</span></dd>'+
         '<dt>確認開門</dt><dd>輸入完畢後按右下角的打勾<span class="gd-key">✓</span>鍵，即可快速解鎖開門。</dd>'+
       '</dl></div>'+
       '<div class="gd-sec"><h3><span class="no">2</span>注意事項</h3><dl>'+
