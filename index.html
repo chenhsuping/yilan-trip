@@ -591,7 +591,7 @@
 
   <div class="calc">
     <h2>💰 費用試算</h2>
-    <div class="sub">包棟與代烤由大人均分；門票統一付款，各家依人數與年齡分攤（6 歲以下免票）。</div>
+    <div class="sub">包棟與代烤由大人均分；門票統一付款，各家依人數與年齡分攤。</div>
 
     <div class="calc-h">🗺️ 各項費用</div>
     <div class="breakdown" id="breakdown"></div>
@@ -600,7 +600,7 @@
 
     <div class="calc-h">👨‍👩‍👧 各家應付 <span>均分 ＋ 自家門票</span></div>
     <div class="fam-list" id="famList"></div>
-    <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿 6 歲以下及 75 歲以上免費，萌萌森林兒童票適用 6–12 歲、6 歲以下暫比照免睡殿視為免票（建議出發前跟現場再確認一次），實際票價以現場公告為準。</div>
+    <div class="note">＊餐飲（桶仔雞、莫內咖啡）依現場點餐；奕順軒依購買品項；免睡殿未滿 6 歲 NT$30、75 歲以上免費；萌萌森林兒童票適用 6–12 歲，未滿 6 歲官方未公告、目前暫以免票計（建議現場再確認一次），實際票價以現場公告為準。</div>
   </div>
 
   <div class="fabs">
@@ -649,7 +649,7 @@
 const trip=[
  [
   {n:1,t:"meal",time:"11:30–13:00",tag:"午餐",icon:"🍗",name:"大仁哥蔗香脆皮桶仔雞 · 宜蘭旗艦店",addr:"宜蘭縣壯圍鄉大福路三段232巷20號",desc:"招牌桶仔雞搭配台式料理，適合多人聚餐，是在地人氣餐廳。",cost:"依現場點餐",cuisine:"台式料理"},
-  {n:2,t:"play",time:"13:30–14:30",tag:"景點",icon:"🤸",name:"宜蘭免睡殿",addr:"宜蘭縣蘇澳鎮海山西路280號",desc:"親子放電景點，翻跳玩樂超有趣，實際活動約 40 分鐘。",cost:"每人 NT$150（6 歲以下・75 歲以上免費）"},
+  {n:2,t:"play",time:"13:30–14:30",tag:"景點",icon:"🤸",name:"宜蘭免睡殿",addr:"宜蘭縣蘇澳鎮海山西路280號",desc:"親子放電景點，翻跳玩樂超有趣，實際活動約 40 分鐘。",cost:"每人 NT$150（未滿 6 歲 NT$30・75 歲以上免費）"},
   {n:3,t:"stay",time:"15:00 起",tag:"住宿",icon:"🏰",name:"宜蘭哥德白色城堡",addr:"宜蘭縣五結鄉大眾一路468號",desc:"白色城堡風格包棟住宿，適合拍照、休息與家人同樂。",cost:"包棟 NT$43,200"},
   {n:4,t:"meal",time:"18:00 起",tag:"晚餐",icon:"🍖",name:"肉慾少年（代烤）",addr:"於民宿內專用",desc:"晚餐安排代烤燒肉，不用自己動手，輕鬆享受聚餐時光。",cost:"約 NT$17,000"}
  ],
@@ -734,8 +734,13 @@ const ROSTER=[
  {fam:'大餅一家',people:[{},{},{age:3}]},
  {fam:'康永夫妻',people:[{},{}]}
 ];
-// 免睡殿：每人 150，6 歲以下／75 歲以上免費
-function pMianshui(p){ return (p.age!==undefined&&(p.age<6||p.age>=75)) ? 0 : 150; }
+// 免睡殿：每人 150；未滿 6 歲 30 元（不是免費）；75 歲以上免費
+function pMianshui(p){
+  if(p.age===undefined) return 150;
+  if(p.age<6) return 30;
+  if(p.age>=75) return 0;
+  return 150;
+}
 // 萌萌森林：大人／6–12 歲兒童票有公告價；6 歲以下未公告，暫比照免睡殿的規則視為免票（見計算機下方附註）
 function pForest(p){
   if(p.age===undefined) return 250;
@@ -766,7 +771,8 @@ function render(){
   // ── 1. 各項費用（景點層級）──
   const mianshui=ROSTER.reduce((s,f)=>s+f.people.reduce((n,p)=>n+pMianshui(p),0),0);
   const forest  =ROSTER.reduce((s,f)=>s+f.people.reduce((n,p)=>n+pForest(p),0),0);
-  const mianshuiPayers=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)>0).length,0);
+  const mianshuiFull=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)===150).length,0);
+  const mianshuiTot =ROSTER.reduce((n,f)=>n+f.people.filter(p=>pMianshui(p)===30).length,0);   // 未滿 6 歲
   const forestAdults=ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===250).length,0);
   const forestKids  =ROSTER.reduce((n,f)=>n+f.people.filter(p=>pForest(p)===150).length,0);
 
@@ -778,7 +784,7 @@ function render(){
   const rows=[
     ['🏰 白色城堡包棟','adult','大人均分',sleep],
     ['🍖 代烤燒肉（約）','adult','大人均分',bbq],
-    ['🤸 宜蘭免睡殿','fam',`統一付款 · 各家依人數分攤 · ${mianshuiPayers}／${ppl} 人 × 150`,mianshui],
+    ['🤸 宜蘭免睡殿','fam',`統一付款 · 各家依人數分攤 · ${mianshuiFull}×150`+(mianshuiTot?` ＋ 未滿 6 歲 ${mianshuiTot}×30`:''),mianshui],
     ['🦙 萌萌森林物語','fam',`統一付款 · 各家依人數分攤 · 大人 ${forestAdults}×250 ＋ 兒童 ${forestKids}×150`,forest]
   ];
   document.getElementById('breakdown').innerHTML=rows.map(r=>
