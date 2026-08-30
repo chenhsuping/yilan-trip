@@ -415,6 +415,11 @@
     background:linear-gradient(100deg,var(--coral),var(--honey) 38%,var(--leek) 68%,var(--teal));
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .end-sub{margin-top:5px;font-size:13px;font-weight:800;color:var(--muted)}
+  .end-photo{margin:0 0 16px;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);
+    border:3px solid var(--card);background:var(--cream)}
+  .end-photo img{display:block;width:100%;height:auto}
+  .end-photo figcaption{padding:9px 12px;text-align:center;font-size:11.5px;font-weight:800;
+    color:var(--muted);background:var(--card)}
   .end-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
   .end-stat{background:var(--card);border:2px solid var(--line);border-radius:14px;
     padding:12px 4px;text-align:center}
@@ -1318,6 +1323,12 @@ function endRender(){
       '<div class="end-title">宜蘭親子小旅行</div>'+
       '<div class="end-sub">'+s.range+' · '+s.days+' 天 '+(s.days-1)+' 夜 · 圓滿結束</div>'+
     '</div>'+
+    // 大合照放在統計前面：先看到人，再看數字
+    '<figure class="end-photo">'+
+      '<img src="group-photo.jpg" alt="全體同行家人在宜蘭哥德白色城堡門口的大合照" '+
+        'width="1400" height="1051" loading="lazy" decoding="async">'+
+      '<figcaption>📸 白色城堡門口 · 15 位家人到齊</figcaption>'+
+    '</figure>'+
     '<div class="end-stats">'+
       '<div class="end-stat"><b>'+s.days+'</b><span>天行程</span></div>'+
       '<div class="end-stat"><b>'+s.stops+'</b><span>個站點</span></div>'+
