@@ -1375,14 +1375,20 @@ const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],1,30,0);
 const wxAuto=Date.now()<WX_AUTO_END;
 if(wxAuto) setTimeout(tyOpen,900);
 
-/* 行程結束後自動跳一次旅程回顧。用 localStorage 記住只跳一次 —— 之後每次開頁都彈
-   會很煩；想再看用右下角的「🎉 旅程回顧」隨時開得起來。
-   localStorage 在無痕視窗或關閉網站資料時會丟例外，包起來讓它壞掉也不影響其他功能。 */
+/* 行程結束後自動跳一次旅程回顧。
+   兩道門檻，缺一不可：
+   1. localStorage 記住「已看過」—— 正常瀏覽器只會跳第一次。
+   2. 只到行程最後一天的午夜為止 —— localStorage 在無痕視窗、iOS 主畫面 App 與 Safari
+      各自獨立的儲存空間、或使用者清除網站資料時會存不住，光靠第 1 道會變成每次開頁
+      都彈。加上時間上限，最壞情況也只煩到當天結束，隔天起一律只能用按鈕開。
+   想重看隨時可按右下角的「🎉 旅程回顧」。 */
 function endSeen(v){
   try{ if(v===undefined) return localStorage.getItem('endShown')==='1';
        localStorage.setItem('endShown','1'); }catch(e){ return false; }
 }
-if(!wxAuto && currentStop().status==='ended' && !endSeen()){
+const endDay=dayDates[dayDates.length-1];
+const END_AUTO_UNTIL=new Date(endDay[0],endDay[1],endDay[2],23,59,59).getTime();
+if(!wxAuto && Date.now()<END_AUTO_UNTIL && currentStop().status==='ended' && !endSeen()){
   setTimeout(()=>{ endOpen(); endSeen(true); },900);
 }
 </script>
