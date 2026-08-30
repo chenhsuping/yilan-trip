@@ -1375,14 +1375,11 @@ const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],1,30,0);
 const wxAuto=Date.now()<WX_AUTO_END;
 if(wxAuto) setTimeout(tyOpen,900);
 
-/* 行程結束後自動跳出旅程回顧，只認時間、不記任何狀態。
-   曾用 localStorage 記「已看過」，但它在無痕視窗、iOS 主畫面 App 與 Safari 各自獨立的
-   儲存空間、或使用者清除網站資料時會存不住，記了等於沒記，行為還變得難以預測。
-   改成純粹看時間：行程結束後到最後一天午夜之間，每次開頁都跳；過了午夜就再也不跳，
-   想重看按右下角的「🎉 旅程回顧」。 */
-const endDay=dayDates[dayDates.length-1];
-const END_AUTO_UNTIL=new Date(endDay[0],endDay[1],endDay[2],23,59,59).getTime();
-if(!wxAuto && Date.now()<END_AUTO_UNTIL && currentStop().status==='ended'){
+/* 行程結束後，每次開頁都跳出旅程回顧 —— 不記狀態、也不設期限。
+   曾用 localStorage 記「已看過」只跳一次，但它在無痕視窗、iOS 主畫面 App 與 Safari
+   各自獨立的儲存空間、或使用者清除網站資料時會存不住，記了等於沒記，行為反而不可預測。
+   關掉之後想再看，按右下角的「🎉 旅程回顧」。 */
+if(!wxAuto && currentStop().status==='ended'){
   setTimeout(endOpen,900);
 }
 </script>
