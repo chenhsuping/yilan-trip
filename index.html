@@ -910,6 +910,12 @@ function currentStop(){
   }
   if(now>=new Date(last.t.getTime()+3*3600*1000)) return {...last,status:'ended'};
   let active=first;for(const f of flat){if(f.at<=now)active=f;}
+  // 跨日修正：沒有結束時間的末站（代烤「18:00 起」）會一路掛著「進行中」，直到隔天
+  // 下一站生效為止 —— 中間橫跨整夜，第二天凌晨還顯示昨晚的晚餐。只要今天本身就是
+  // 行程日，就至少跳到今天的第一站，不讓昨天的站佔著「目前行程」。
+  const sameDay=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  const todayFirst=flat.find(f=>sameDay(f.t,now));
+  if(todayFirst&&active.t<todayFirst.t) active=todayFirst;
   // 已經跳過來、但還沒到表定時間 → 提前量的那段區間
   return {...active,status: now<active.t ? 'soon' : 'current'};
 }
