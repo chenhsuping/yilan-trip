@@ -288,6 +288,7 @@
   #tyBtn{background:linear-gradient(120deg,var(--teal),var(--grape))}
   #tyBtn:focus-visible{outline-color:var(--honey)}
   #calcBtn{background:linear-gradient(120deg,var(--honey),var(--leek))}
+  #endBtn{background:linear-gradient(120deg,var(--grape),var(--teal))}
   #tyBtn .sw{display:inline-block;animation:swirl 3.6s ease-in-out infinite}
   @keyframes swirl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(6deg)}}
   @media(max-width:560px){
@@ -406,6 +407,36 @@
   /* 入住須知：獨立卡片、不用蓋版視窗 —— 內容短，直接看完最快 */
   .nt{display:flex;flex-direction:column;gap:0}
   .nt .gd-sec{box-shadow:var(--shadow-sm)}
+  /* 行程結束 · 回顧視窗 */
+  .end-hero{text-align:center;padding:6px 6px 20px}
+  .end-em{font-size:56px;line-height:1;filter:drop-shadow(0 8px 10px rgba(120,80,50,.2));
+    animation:bob 5s ease-in-out infinite}
+  .end-title{margin-top:10px;font-size:25px;font-weight:900;letter-spacing:.02em;
+    background:linear-gradient(100deg,var(--coral),var(--honey) 38%,var(--leek) 68%,var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .end-sub{margin-top:5px;font-size:13px;font-weight:800;color:var(--muted)}
+  .end-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  .end-stat{background:var(--card);border:2px solid var(--line);border-radius:14px;
+    padding:12px 4px;text-align:center}
+  .end-stat b{display:block;font-size:23px;font-weight:900;color:var(--coral);
+    font-variant-numeric:tabular-nums;line-height:1.1}
+  .end-stat span{display:block;margin-top:3px;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .end-sec{background:var(--card);border:2px solid var(--line);border-radius:16px;
+    padding:14px 16px;margin-bottom:14px}
+  .end-sec h3{margin:0 0 11px;font-size:14.5px;font-weight:900;display:flex;align-items:center;gap:7px}
+  .end-sec p{margin:0;font-size:14px;line-height:1.85}
+  .end-sec p em{font-style:normal;font-weight:900;color:var(--coral)}
+  .end-pay{display:flex;flex-direction:column;gap:8px}
+  .end-pay .r{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px}
+  .end-pay .n{font-weight:800}
+  .end-pay .v{font-weight:900;color:var(--teal);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .end-pay .tot{border-top:2px dashed var(--line);padding-top:9px;margin-top:2px}
+  .end-pay .tot .v{color:var(--coral);font-size:15px}
+  .end-act{text-align:center;margin-top:4px}
+  @media(max-width:560px){
+    .end-stats{grid-template-columns:repeat(2,1fr)}
+    .end-title{font-size:22px}
+  }
   .gd-soon{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
   .gd-soon .em{display:block;font-size:34px;margin-bottom:8px}
   .ty-msg{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;line-height:2}
@@ -605,6 +636,7 @@
 
   <div class="fabs">
     <button id="nowBtn" class="fab" type="button" aria-label="跳到目前行程">📍 目前行程</button>
+    <button id="endBtn" class="fab" type="button" aria-label="查看旅程回顧" style="display:none">🎉 旅程回顧</button>
     <button id="tyBtn" class="fab" type="button" aria-label="查看出遊兩天天氣預報"><span class="sw">🌤️</span> 天氣預報</button>
     <button id="calcBtn" class="fab" type="button" aria-label="跳到費用試算">💰 費用試算</button>
   </div>
@@ -627,6 +659,21 @@
     <div class="ty-foot">
       天氣預報：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><br>
       點上方任一天可看該日逐時預報 · 越接近出發越準
+    </div>
+  </div>
+</div>
+
+<div class="ty-mask" id="endMask" role="dialog" aria-modal="true" aria-labelledby="endTitle" aria-hidden="true">
+  <div class="ty-box">
+    <div class="ty-head">
+      <h2 id="endTitle">🎉 旅程回顧</h2>
+      <button class="ty-x" id="endX" type="button" aria-label="關閉旅程回顧視窗">✕</button>
+    </div>
+    <div class="ty-scroll">
+      <div id="endBody"></div>
+    </div>
+    <div class="ty-foot">
+      謝謝每一位同行的家人 · 期待下次再一起出發 🚌
     </div>
   </div>
 </div>
@@ -709,8 +756,15 @@ function selectDay(di){
   const info=INFO_TABS.includes(di);
   document.querySelector('.calc').style.display=info?'none':'';
   document.querySelector('.outro').style.display=info?'none':'';
-  document.getElementById('nowBtn').style.display=info?'none':'';
+  syncFabs(info);
   revealVisible();
+}
+// 行程結束後「📍 目前行程」已無意義（它只會指著最後一站），換成「🎉 旅程回顧」佔同一個位置
+function syncFabs(info){
+  if(info===undefined) info=INFO_TABS.includes(document.querySelector('.tab[aria-selected="true"]').dataset.d);
+  const ended=currentStop().status==='ended';
+  document.getElementById('nowBtn').style.display=(info||ended)?'none':'';
+  document.getElementById('endBtn').style.display=(info||!ended)?'none':'';
 }
 tabs.forEach(tb=>tb.addEventListener('click',()=>{
   const di=tb.dataset.d;selectDay(di);
@@ -958,7 +1012,7 @@ document.getElementById('calcBtn').addEventListener('click',()=>{
   window.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
 });
 gotoNow(false);
-setInterval(()=>markActive(currentStop()),60000); // 每分鐘更新標記
+setInterval(()=>{ markActive(currentStop()); syncFabs(); },60000); // 每分鐘更新標記與浮動鈕
 
 /* ================= 天氣蓋版視窗 ================= */
 const tyMask=document.getElementById('tyMask');
@@ -1240,8 +1294,68 @@ document.querySelectorAll('.gd-btn').forEach(b=>b.addEventListener('click',()=>{
 gdX.addEventListener('click',gdClose);
 gdMask.addEventListener('click',e=>{ if(e.target===gdMask) gdClose(); });
 
-/* ---- 兩個蓋版視窗共用：Esc 關閉 + Tab focus trap ---- */
-const MASKS=[[tyMask,tyClose],[gdMask,gdClose]];
+/* ================= 行程結束 · 旅程回顧視窗 ================= */
+const endMask=document.getElementById('endMask');
+const endBody=document.getElementById('endBody');
+const endBtn=document.getElementById('endBtn');
+const endX=document.getElementById('endX');
+let endPrevFocus=null;
+
+// 統計數字全部從 trip／dayDates 現算，改行程不必回來改這裡
+function endStats(){
+  const days=trip.length;
+  const stops=trip.reduce((n,d)=>n+d.length,0);
+  const spots=trip.reduce((n,d)=>n+d.filter(s=>s.t!=='checkout').length,0);
+  const first=dayDates[0], lastD=dayDates[dayDates.length-1];
+  const fmt=d=>(d[1]+1)+'/'+d[2];
+  return {days,stops,spots,range:fmt(first)+' – '+fmt(lastD)};
+}
+function endRender(){
+  const s=endStats();
+  endBody.innerHTML=
+    '<div class="end-hero">'+
+      '<div class="end-em">🎒</div>'+
+      '<div class="end-title">宜蘭親子小旅行</div>'+
+      '<div class="end-sub">'+s.range+' · '+s.days+' 天 '+(s.days-1)+' 夜 · 圓滿結束</div>'+
+    '</div>'+
+    '<div class="end-stats">'+
+      '<div class="end-stat"><b>'+s.days+'</b><span>天行程</span></div>'+
+      '<div class="end-stat"><b>'+s.stops+'</b><span>個站點</span></div>'+
+      '<div class="end-stat"><b>15</b><span>位家人</span></div>'+
+      '<div class="end-stat"><b>5</b><span>個家庭</span></div>'+
+    '</div>'+
+    '<div class="end-sec"><h3>🌟 這兩天我們去了</h3>'+
+      '<p>'+trip.map((d,i)=>'<em>DAY '+(i+1)+'</em>　'+d.map(x=>x.icon+' '+x.name.split(' · ')[0]).join('、')).join('<br>')+'</p>'+
+    '</div>'+
+    '<div class="end-sec"><h3>🎈 辛苦了，也謝謝大家</h3>'+
+      '<p>從桶仔雞的煙火氣、免睡殿的放電時光，到白色城堡的那一夜烤肉——'+
+      '大人忙著開車、訂位、顧小孩，小孩負責把每個地方玩到最滿。<br>'+
+      '兩天很短，但這些畫面會留很久。<em>下次見！</em></p>'+
+    '</div>';
+}
+function endOpen(){
+  endRender();
+  endPrevFocus=document.activeElement;
+  endMask.classList.add('on');
+  endMask.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  endMask.querySelector('.ty-scroll').scrollTop=0;
+  endX.focus();
+  if(!reduce) setTimeout(()=>burst(innerWidth/2,innerHeight*.32,
+    ['#FF7A6B','#F0A02E','#FFD36B','#5CA24B','#189E9A','#8C6BD6']),260);
+}
+function endClose(){
+  endMask.classList.remove('on');
+  endMask.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  if(endPrevFocus&&endPrevFocus.focus) endPrevFocus.focus();
+}
+endBtn.addEventListener('click',endOpen);
+endX.addEventListener('click',endClose);
+endMask.addEventListener('click',e=>{ if(e.target===endMask) endClose(); });
+
+/* ---- 三個蓋版視窗共用：Esc 關閉 + Tab focus trap ---- */
+const MASKS=[[tyMask,tyClose],[gdMask,gdClose],[endMask,endClose]];
 document.addEventListener('keydown',e=>{
   const open=MASKS.find(m=>m[0].classList.contains('on'));
   if(!open) return;
@@ -1256,9 +1370,21 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-/* 自動跳出天氣視窗：只到出發當天（8/29）台灣時間 10:00 為止，之後改用右下角按鈕自己開 */
+/* 自動跳出天氣視窗：只到出發當天（8/29）台灣時間 09:30 為止，之後改用右下角按鈕自己開 */
 const WX_AUTO_END=Date.UTC(dayDates[0][0],dayDates[0][1],dayDates[0][2],1,30,0);  // 台灣 09:30 = UTC 01:30
-if(Date.now()<WX_AUTO_END) setTimeout(tyOpen,900);
+const wxAuto=Date.now()<WX_AUTO_END;
+if(wxAuto) setTimeout(tyOpen,900);
+
+/* 行程結束後自動跳一次旅程回顧。用 localStorage 記住只跳一次 —— 之後每次開頁都彈
+   會很煩；想再看用右下角的「🎉 旅程回顧」隨時開得起來。
+   localStorage 在無痕視窗或關閉網站資料時會丟例外，包起來讓它壞掉也不影響其他功能。 */
+function endSeen(v){
+  try{ if(v===undefined) return localStorage.getItem('endShown')==='1';
+       localStorage.setItem('endShown','1'); }catch(e){ return false; }
+}
+if(!wxAuto && currentStop().status==='ended' && !endSeen()){
+  setTimeout(()=>{ endOpen(); endSeen(true); },900);
+}
 </script>
 </body>
 </html>
